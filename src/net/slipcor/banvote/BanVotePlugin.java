@@ -44,21 +44,23 @@ public class BanVotePlugin extends JavaPlugin {
 				Type.PLAYER_COMMAND_PREPROCESS, pl, Priority.Normal, this);
 		getServer().getPluginManager().registerEvent(Type.PLAYER_PRELOGIN, pl,
 				Priority.Normal, this);
-		
+
 		getConfig().options().copyDefaults(true);
 		saveConfig();
-		
-		BanVoteClass.set(getConfig().getConfigurationSection("settings").getValues(false));
-		
+
+		BanVoteClass.set(getConfig().getConfigurationSection("settings")
+				.getValues(false));
+
 		if (getConfig().get("bans") != null) {
 			HashSet<String> bans = new HashSet<String>();
-			
-			for (Object val : getConfig().getConfigurationSection("bans").getValues(true).values()) {
+
+			for (Object val : getConfig().getConfigurationSection("bans")
+					.getValues(true).values()) {
 				bans.add(val.toString());
 			}
 			getConfig().set("bans", null);
 			saveConfig();
-			
+
 			for (String s : bans) {
 				bbm.add(s);
 			}
@@ -87,7 +89,7 @@ public class BanVotePlugin extends JavaPlugin {
 		}
 
 		Player player = (Player) sender;
-		
+
 		if (!sCmd.equals("banvote")) {
 			if (sCmd.equals("unbanvote")) {
 				return onAdminCommand(player, args);
@@ -95,14 +97,15 @@ public class BanVotePlugin extends JavaPlugin {
 				return false;
 			}
 		}
-		
+
 		db.i("onCommand: banvote command");
 
 		if (!player.hasPermission("banvote.vote")) {
-			BanVotePlugin.msg(player, ChatColor.RED + "You don't have permission!");
+			BanVotePlugin.msg(player, ChatColor.RED
+					+ "You don't have permission!");
 			return true;
 		}
-		
+
 		if (args == null || args.length < 1) {
 			return false;
 		}
@@ -117,12 +120,12 @@ public class BanVotePlugin extends JavaPlugin {
 		if (args[0].equalsIgnoreCase("help")) {
 			msg(player, ChatColor.GOLD
 					+ "To start a vote to ban a player type: ");
-			msg(player, ChatColor.AQUA + "/voteban [playername] [reason]fuc");
+			msg(player, ChatColor.AQUA + "/banvote [playername] [reason]fuc");
 			msg(player, ChatColor.GOLD + "Once started, type "
-					+ ChatColor.GREEN + "/voteban [+|yes|true]"
+					+ ChatColor.GREEN + "/banvote [+|yes|true]"
 					+ ChatColor.GOLD + " to vote to ban");
 			msg(player, ChatColor.GOLD + "or " + ChatColor.RED
-					+ "/voteban [-|no|false]" + ChatColor.GOLD
+					+ "/banvote [-|no|false]" + ChatColor.GOLD
 					+ " to vote not to ban.");
 			msg(player, ChatColor.GOLD + "A vote against counts as "
 					+ ChatColor.RED + "-4" + ChatColor.GOLD
@@ -136,32 +139,49 @@ public class BanVotePlugin extends JavaPlugin {
 		bm.commit(args[0], player);
 		return true;
 	}
-	
+
 	/**
 	 * parse admin (unban) command
-	 * @param player player committing the command
-	 * @param args vote UID to unban
+	 * 
+	 * @param player
+	 *            player committing the command
+	 * @param args
+	 *            vote UID to unban
 	 * @return true if args correct, false otherwise
 	 */
 	private boolean onAdminCommand(Player player, String[] args) {
 		if (args == null || args.length != 1) {
 			return false;
 		}
-		
+
 		if (!player.hasPermission("banvote.admin")) {
-			BanVotePlugin.msg(player, ChatColor.RED + "You don't have permission!");
+			BanVotePlugin.msg(player, ChatColor.RED
+					+ "You don't have permission!");
 			return true;
 		}
+
+		if (args[0].equals("list")) {
+			for (int i : bbm.bans.keySet()) {
+				BanVoteBan ban = bbm.bans.get(i);
+				BanVotePlugin.msg(player, ChatColor.GOLD + "#" + i + ": " + ban.getInfo());
+			}
+			if (bbm.bans.size() < 1) {
+				BanVotePlugin.msg(player, ChatColor.GOLD + "No bans active!");
+			}
+			return true;
+		}
+
 		String banPlayer = "";
 		try {
 			int i = Integer.parseInt(args[0]);
 			banPlayer = bbm.bans.get(i).getBanned();
 			bbm.remove(i);
 		} catch (Exception e) {
-			BanVotePlugin.msg(player, ChatColor.RED + "Invalid argument! Not a number: "+args[0]);
+			BanVotePlugin.msg(player, ChatColor.RED
+					+ "Invalid argument! Not a number: " + args[0]);
 			return true;
 		}
-		BanVotePlugin.msg(player, ChatColor.GREEN + "Unbanned: "+banPlayer);
+		BanVotePlugin.msg(player, ChatColor.GREEN + "Unbanned: " + banPlayer);
 		return true;
 	}
 

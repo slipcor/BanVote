@@ -93,7 +93,8 @@ public class BanVoteManager {
 			return;
 		}
 		if (!isPossible(pTarget)) {
-			BanVotePlugin.msg(player, ChatColor.GOLD + "Vote on " + sTarget + " cooling down!");
+			BanVotePlugin.msg(player, ChatColor.GOLD + "Vote on " + sTarget
+					+ " cooling down!");
 			return;
 		}
 		BanVotePlugin.db.i("possibility check positive");

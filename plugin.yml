@@ -1,7 +1,7 @@
 name: BanVote
 author: slipcor
 main: net.slipcor.banvote.BanVotePlugin
-version: 0.0.2.0
+version: 0.0.2.1
 website: http://dev.bukkit.org/server-mods/banvote
 commands:
     banvote:

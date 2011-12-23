@@ -9,3 +9,4 @@ settings:
     PosMinutes: 30
     NegMinutes: 8
     CoolMinutes: 30
+    CalcPublic: false
