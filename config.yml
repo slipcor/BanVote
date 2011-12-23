@@ -1,0 +1,11 @@
+settings:
+    StageSeconds: 60
+    NoValue: -4.00
+    YesValue: 1.00
+    AfkValue: -0.25
+    NonValue: 0.00
+    ValidMin: 0.25
+    ValidMax: -0.25
+    PosMinutes: 30
+    NegMinutes: 8
+    CoolMinutes: 30

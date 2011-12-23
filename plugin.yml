@@ -1,0 +1,25 @@
+name: BanVote
+author: slipcor
+main: net.slipcor.banvote.BanVotePlugin
+version: 0.0.2.0
+website: http://dev.bukkit.org/server-mods/banvote
+commands:
+    banvote:
+        description: vote for banning a player
+        usage: |
+            /banvote help | detailed usage help
+            /banvote [playername] [reason] | start vote
+            /banvote [+|yes|true] | vote for ban
+            /banvote [-|no|false] | vote against ban
+    unbanvote:
+        description: unban a player
+        usage: |
+            /unbanvote [#] | unban vote #
+            /unbanvote list | list all bans
+permissions:
+    banvote.admin:
+        description: Allows you to unban
+        default: op
+    banvote.vote:
+        description: Allows you to vote
+        default: true
