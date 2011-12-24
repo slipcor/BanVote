@@ -60,7 +60,8 @@ public class BanVoteBan {
 	 * @return true if the ban has expired, false otherwise
 	 */
 	protected boolean over() {
-		return (timestamp + (interval*60)) > System.currentTimeMillis() / 1000d;
+		BanVotePlugin.db.i(timestamp + (interval*60) + " < " + System.currentTimeMillis() / 1000);
+		return (timestamp + (interval*60)) < System.currentTimeMillis() / 1000;
 	}
 
 	/**
