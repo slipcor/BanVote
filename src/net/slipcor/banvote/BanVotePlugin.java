@@ -15,7 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 /**
  * plugin class
  * 
- * @version v0.0.1
+ * @version v0.0.3
  * 
  * @author slipcor
  * 
@@ -24,7 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class BanVotePlugin extends JavaPlugin {
 	protected static BanVotePlugin instance;
 	protected final BanVoteManager bm = new BanVoteManager();
-	protected final BanVoteBanManager bbm = new BanVoteBanManager();
+	protected final BanVoteResultManager bbm = new BanVoteResultManager();
 	protected final BanVotePlayerListener pl = new BanVotePlayerListener();
 
 	protected static BanVoteDebugger db;
@@ -87,20 +87,29 @@ public class BanVotePlugin extends JavaPlugin {
 			sender.sendMessage("[BanVote] Commands only usable ingame!");
 			return true;
 		}
-
+		byte b = 0;
 		Player player = (Player) sender;
 
-		if (!sCmd.equals("banvote")) {
-			if (sCmd.equals("unbanvote")) {
+		if (!sCmd.equals("banvote") && !sCmd.equals("mutevote")
+				&& !sCmd.equals("kickvote")) {
+			if (sCmd.equals("release")) {
 				return onAdminCommand(player, args);
 			} else {
 				return false;
 			}
 		}
 
-		db.i("onCommand: banvote command");
+		if (sCmd.startsWith("ban")) {
+			b = 2;
+		} else if (sCmd.startsWith("kick")) {
+			b = 1;
+		}
 
-		if (!player.hasPermission("banvote.vote")) {
+		String type = BanVoteClass.parse(b);
+		
+		db.i("onCommand: " + type + "vote command");
+
+		if (!player.hasPermission("" + type + "vote.vote")) {
 			BanVotePlugin.msg(player, ChatColor.RED
 					+ "You don't have permission!");
 			return true;
@@ -113,26 +122,27 @@ public class BanVotePlugin extends JavaPlugin {
 		db.i("onCommand: args: " + parseStringArray(args));
 
 		if (args.length > 1) {
-			bm.init(args[0], args, player);
+			bm.init(args[0], args, player, b);
 			return true;
 		}
 
 		if (args[0].equalsIgnoreCase("help")) {
-			msg(player, ChatColor.GOLD
-					+ "To start a vote to ban a player type: ");
-			msg(player, ChatColor.AQUA + "/banvote [playername] [reason]fuc");
+			msg(player, ChatColor.GOLD + "To start a vote to " + type
+					+ " a player type: ");
+			msg(player, ChatColor.AQUA + "/" + type
+					+ "vote [playername] [reason]");
 			msg(player, ChatColor.GOLD + "Once started, type "
-					+ ChatColor.GREEN + "/banvote [+|yes|true]"
+					+ ChatColor.GREEN + "/" + type + "vote [+|yes|true]"
 					+ ChatColor.GOLD + " to vote to ban");
-			msg(player, ChatColor.GOLD + "or " + ChatColor.RED
-					+ "/banvote [-|no|false]" + ChatColor.GOLD
-					+ " to vote not to ban.");
+			msg(player, ChatColor.GOLD + "or " + ChatColor.RED + "/" + type
+					+ "vote [-|no|false]" + ChatColor.GOLD + " to vote not to "
+					+ type + ".");
 			msg(player, ChatColor.GOLD + "A vote against counts as "
 					+ ChatColor.RED + "-4" + ChatColor.GOLD
-					+ " votes towards a ban");
+					+ " votes towards a " + type + "");
 			msg(player, ChatColor.GOLD + "A non-vote counts as "
 					+ ChatColor.RED + "-0.25" + ChatColor.GOLD
-					+ " votes towards a ban");
+					+ " votes towards a " + type + "");
 			return true;
 		}
 
@@ -161,11 +171,12 @@ public class BanVotePlugin extends JavaPlugin {
 		}
 
 		if (args[0].equals("list")) {
-			for (int i : bbm.bans.keySet()) {
-				BanVoteBan ban = bbm.bans.get(i);
-				BanVotePlugin.msg(player, ChatColor.GOLD + "#" + i + ": " + ban.getInfo());
+			for (int i : bbm.results.keySet()) {
+				BanVoteResult ban = bbm.results.get(i);
+				BanVotePlugin.msg(player,
+						ChatColor.GOLD + "#" + i + ": " + ban.getInfo());
 			}
-			if (bbm.bans.size() < 1) {
+			if (bbm.results.size() < 1) {
 				BanVotePlugin.msg(player, ChatColor.GOLD + "No bans active!");
 			}
 			return true;
@@ -174,7 +185,7 @@ public class BanVotePlugin extends JavaPlugin {
 		String banPlayer = "";
 		try {
 			int i = Integer.parseInt(args[0]);
-			banPlayer = bbm.bans.get(i).getBanned();
+			banPlayer = bbm.results.get(i).getResultPlayerName();
 			bbm.remove(i);
 		} catch (Exception e) {
 			BanVotePlugin.msg(player, ChatColor.RED

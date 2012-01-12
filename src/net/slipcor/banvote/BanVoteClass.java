@@ -12,7 +12,7 @@ import de.stonedCRAFT.SimpleAFK.SimpleAFK;
 /**
  * ban vote class
  * 
- * @version v0.0.0
+ * @version v0.0.3
  * 
  * @author slipcor
  * 
@@ -35,6 +35,7 @@ public class BanVoteClass {
 	private static int coolMinutes;
 	private static boolean calcPublic;
 
+	private String type;
 	private voteState state;
 	private String voter;
 	private String target;
@@ -54,33 +55,65 @@ public class BanVoteClass {
 	 * @param sReason
 	 *            the reason given for banning
 	 */
-	public BanVoteClass(Player pTarget, Player player, String sReason) {
+	public BanVoteClass(Player pTarget, Player player, String sReason,
+			byte bType) {
 		voter = player.getName();
 		target = pTarget.getName();
 		state = voteState.MUTETARGET;
 
+		type = parse(bType);
+
 		BanVotePlugin.brc(ChatColor.GREEN + player.getName() + ChatColor.GOLD
-				+ " started a ban vote against " + ChatColor.RED
+				+ " started a " + type + " vote against " + ChatColor.RED
 				+ pTarget.getName() + ChatColor.GOLD + ".");
-		BanVotePlugin.brc(ChatColor.GOLD + "Ban reason: " + ChatColor.WHITE
+		BanVotePlugin.brc(ChatColor.GOLD + type + " reason: " + ChatColor.WHITE
 				+ sReason);
-		BanVotePlugin.brc(ChatColor.GOLD + "Say " + ChatColor.GREEN
-				+ "/banvote yes" + ChatColor.GOLD + " for banning, "
-				+ ChatColor.RED + "/banvote no" + ChatColor.GOLD
-				+ " to vote against ban.");
+		BanVotePlugin.brc(ChatColor.GOLD + "Say " + ChatColor.GREEN + "/"
+				+ type + "vote yes" + ChatColor.GOLD + " for banning, "
+				+ ChatColor.RED + "/" + type + "vote no" + ChatColor.GOLD
+				+ " to vote against " + type + ".");
 		BanVotePlugin.brc(ChatColor.GOLD + "Muting " + ChatColor.RED
 				+ pTarget.getName() + ChatColor.GOLD + " for " + stageSeconds
-				+ " seconds to discuss the ban vote.");
-		BanVotePlugin.log.i("ban vote started: [voter: " + player.getName()
-				+ "], [target: " + pTarget.getName() + "], reason: " + sReason);
+				+ " seconds to discuss the " + type + " vote.");
+		BanVotePlugin.log.i("" + type + " vote started: [voter: "
+				+ player.getName() + "], [target: " + pTarget.getName()
+				+ "], reason: " + sReason);
 		int interval = 20 * Math.round(stageSeconds / 2); // half a minute
-		BanVotePlugin.db.i("banVote interval: " + interval + " ticks");
+		BanVotePlugin.db.i("" + type + "Vote interval: " + interval + " ticks");
 
 		RUN_ID = Bukkit
 				.getServer()
 				.getScheduler()
 				.scheduleSyncRepeatingTask(BanVotePlugin.instance,
 						new BanVoteRunnable(this), interval, interval);
+	}
+	
+	/**
+	 * parse ban vote type: byte to string
+	 * @param bType the input byte
+	 * @return the output string
+	 */
+	protected static String parse(byte bType) {
+		if (bType == 1) {
+			return "kick";
+		} else if (bType == 2) {
+			return "ban";
+		}
+		return "mute";
+	}
+	
+	/**
+	 * parse ban vote type: byte to string
+	 * @param bType the input byte
+	 * @return the output string
+	 */
+	protected static byte parse(String sType) {
+		if (sType.equals("kick")) {
+			return 1;
+		} else if (sType.equals("ban")) {
+			return 2;
+		}
+		return 0;
 	}
 
 	/**
@@ -119,8 +152,14 @@ public class BanVoteClass {
 		HashSet<String> afk = new HashSet<String>();
 
 		try {
+			if (BanVotePlugin.instance.getServer().getPluginManager()
+					.getPlugin("SimpleAFK") == null) {
+				return afk;
+			}
+
 			SimpleAFK plugin = (SimpleAFK) BanVotePlugin.instance.getServer()
 					.getPluginManager().getPlugin("SimpleAFK");
+
 			for (Player p : plugin.afkPlayers.keySet()) {
 				if (yes.contains(p.getName())) {
 					continue;
@@ -187,8 +226,9 @@ public class BanVoteClass {
 				state = voteState.MUTEVOTER;
 				BanVotePlugin.brc(ChatColor.GOLD + "Muting " + ChatColor.GREEN
 						+ voter + ChatColor.GOLD + " for " + stageSeconds
-						+ " seconds, so " + target + " can explain.");
-				BanVotePlugin.log.i("ban vote: stage 2 - muting the voter");
+						+ " seconds, so " + ChatColor.RED + target + ChatColor.GOLD + " can explain.");
+				BanVotePlugin.log.i("" + type
+						+ " vote: stage 2 - muting the voter");
 			} else {
 				BanVotePlugin.brc(ChatColor.GOLD
 						+ String.valueOf(Math.round(stageSeconds / 2))
@@ -238,7 +278,7 @@ public class BanVoteClass {
 
 		if (calcPublic) {
 
-			BanVotePlugin.brc(yes.size() + " ban votes = "
+			BanVotePlugin.brc(yes.size() + " " + type + " votes = "
 					+ (yes.size() * yesValue) + " :: " + getNames(yes));
 			BanVotePlugin.brc(afk.size() + " afk votes = "
 					+ (afk.size() * afkValue) + " :: " + getNames(afk));
@@ -249,7 +289,7 @@ public class BanVoteClass {
 			BanVotePlugin.brc("------------------");
 			BanVotePlugin.brc("Final vote tally = " + result);
 		} else {
-			BanVotePlugin.log.i(yes.size() + " ban votes = "
+			BanVotePlugin.log.i(yes.size() + " " + type + " votes = "
 					+ (yes.size() * yesValue) + " :: " + getNames(yes));
 			BanVotePlugin.log.i(afk.size() + " afk votes = "
 					+ (afk.size() * afkValue) + " :: " + getNames(afk));
@@ -263,13 +303,16 @@ public class BanVoteClass {
 
 		if (result > validMin) {
 			// ban successful
-			BanVotePlugin.brc(ChatColor.GOLD + "Ban vote on " + ChatColor.RED
-					+ target + ChatColor.GOLD + " gave a clear result.");
+			BanVotePlugin.brc(ChatColor.GOLD + "" + type + " vote on "
+					+ ChatColor.RED + target + ChatColor.GOLD
+					+ " gave a clear result.");
 			BanVotePlugin.brc(ChatColor.GOLD + "It " + ChatColor.GREEN
 					+ "succeeded" + ChatColor.GOLD + " with a score of "
 					+ Math.round(result) + ".");
-			BanVotePlugin.brc(ChatColor.GOLD + "Banning " + ChatColor.RED
-					+ target + ChatColor.GOLD + ".");
+			if (type.equals("ban")) {
+				BanVotePlugin.brc(ChatColor.GOLD + "Banning " + ChatColor.RED
+						+ target + ChatColor.GOLD + ".");
+			}
 
 			state = voteState.POSITIVE;
 			BanVotePlugin.log.i(target + " tempban = " + result * posMinutes);
@@ -277,23 +320,25 @@ public class BanVoteClass {
 
 		} else if (result < validMax) {
 			// ban failed
-			BanVotePlugin.brc(ChatColor.GOLD + "Ban vote on " + ChatColor.RED
-					+ target + ChatColor.GOLD + " gave a clear result.");
+			BanVotePlugin.brc(ChatColor.GOLD + "" + type + " vote on "
+					+ ChatColor.RED + target + ChatColor.GOLD
+					+ " gave a clear result.");
 			BanVotePlugin.brc(ChatColor.GOLD + "It " + ChatColor.RED + "failed"
 					+ ChatColor.GOLD + " with a score of " + Math.round(result)
 					+ ".");
-			BanVotePlugin.brc(ChatColor.GOLD + "Banning " + ChatColor.GREEN
-					+ voter + ChatColor.GOLD + ".");
+			if (type.equals("ban")) {
+				BanVotePlugin.brc(ChatColor.GOLD + "Banning " + ChatColor.GREEN
+						+ voter + ChatColor.GOLD + ".");
+			}
 
 			state = voteState.NEGATIVE;
 			BanVotePlugin.log.i(voter + " tempban = " + result * negMinutes);
 			commitBan(voter, Math.round(result * negMinutes));
 		} else {
 			// community failed
-			BanVotePlugin
-					.brc(ChatColor.GOLD + "Ban vote on " + ChatColor.RED
-							+ target + ChatColor.GOLD
-							+ " did not give a clear result.");
+			BanVotePlugin.brc(ChatColor.GOLD + "" + type + " vote on "
+					+ ChatColor.RED + target + ChatColor.GOLD
+					+ " did not give a clear result.");
 
 			state = voteState.NULL;
 		}
@@ -304,7 +349,7 @@ public class BanVoteClass {
 	}
 
 	/**
-	 * actually commit the ban command, calculate ban count to maybe perm ban
+	 * actually commit the ban/mute/kick command, TODO calculate ban/mute count to maybe perm ban
 	 * 
 	 * @param target
 	 *            playername to be banned
@@ -312,12 +357,24 @@ public class BanVoteClass {
 	 *            value in minutes to be banned
 	 */
 	private void commitBan(String sBanTarget, int i) {
+		byte b = 0;
+		if (type.equals("kick")) {
+			b = 1;
+		} else if (type.equals("ban")) {
+			b = 2;
+		}
 		i = Math.abs(i);
 		BanVotePlugin.instance.bbm.add(voter + ":" + target + ":"
 				+ Math.round(System.currentTimeMillis() / 1000) + ":" + i + ":"
-				+ target.equals(sBanTarget));
+				+ target.equals(sBanTarget) + ":" + b);
 		BanVotePlugin.db.i("committing ban on " + target + " for " + i
 				+ " minutes");
+		if (b == 0) {
+			BanVotePlugin
+					.brc("Muting " + sBanTarget + " for " + i + " minutes");
+			BanVotePlugin.db.i("NOT kicking");
+			return;
+		}
 		try {
 			Bukkit.getPlayer(sBanTarget).kickPlayer(
 					"You have been vote-banned for " + i + " minutes!");

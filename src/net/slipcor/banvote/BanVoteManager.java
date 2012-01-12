@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 /**
  * ban vote manager class
  * 
- * @version v0.0.1
+ * @version v0.0.3
  * 
  * @author slipcor
  * 
@@ -75,7 +75,7 @@ public class BanVoteManager {
 	 * @param player
 	 *            the player trying to vote
 	 */
-	protected void init(String sTarget, String[] args, Player player) {
+	protected void init(String sTarget, String[] args, Player player, byte b) {
 		BanVotePlugin.db.i("vote init: " + player.getName() + " => " + sTarget);
 		BanVotePlugin.db.i("args: "
 				+ BanVotePlugin.instance.parseStringArray(args));
@@ -99,7 +99,7 @@ public class BanVoteManager {
 		}
 		BanVotePlugin.db.i("possibility check positive");
 		votes.add(new BanVoteClass(pTarget, player, BanVotePlugin.instance
-				.parseStringArray(args)));
+				.parseStringArray(args), b));
 	}
 
 	/**
