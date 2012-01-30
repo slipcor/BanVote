@@ -66,6 +66,8 @@ public class BanVotePlugin extends JavaPlugin {
 			}
 		}
 		
+		BVUpdate.updateCheck(this);
+		
 		log.i(getDescription().getVersion() + " enabled");
 	}
 

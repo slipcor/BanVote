@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPreLoginEvent;
 
 /**
@@ -21,7 +22,7 @@ import org.bukkit.event.player.PlayerPreLoginEvent;
 public class BVListener implements Listener {
 
 	@EventHandler
-	public void playerCommand(PlayerCommandPreprocessEvent event) {
+	public void playerCommand(final PlayerCommandPreprocessEvent event) {
 		BanVotePlugin.db.i("onPlayerCommandPreprocess: "
 				+ event.getPlayer().getName());
 		if (isAllowed(event.getPlayer())) {
@@ -31,7 +32,7 @@ public class BVListener implements Listener {
 	}
 
 	@EventHandler
-	public void playerChat(PlayerChatEvent event) {
+	public void playerChat(final PlayerChatEvent event) {
 		BanVotePlugin.db.i("onPlayerChat: " + event.getPlayer().getName());
 		if (isAllowed(event.getPlayer())) {
 			return;
@@ -55,12 +56,19 @@ public class BVListener implements Listener {
 	}
 
 	@EventHandler
-	public void playerPreLogin(PlayerPreLoginEvent event) {
+	public void playerPreLogin(final PlayerPreLoginEvent event) {
 		BanVotePlugin.db.i("onPlayerPreLogin: " + event.getName());
 		if (BanVoteResult.isBanned(event.getName())) {
 			BanVotePlugin.db.i("disallowing...");
 			event.disallow(PlayerPreLoginEvent.Result.KICK_OTHER,
 					"You are vote-banned!");
+		}
+	}
+	
+	@EventHandler
+	public void playerJoin(final PlayerJoinEvent event) {
+		if (event.getPlayer().isOp()) {
+			BVUpdate.message(event.getPlayer());
 		}
 	}
 }
