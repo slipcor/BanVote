@@ -10,3 +10,24 @@ settings:
     NegMinutes: 8
     CoolMinutes: 30
     CalcPublic: false
+###############
+# COMMANDS
+#
+# valid vars:
+# - $w the player being the result winner
+# - $l the player being the result loser
+# - $m the result time calculated to minutes
+# - $h the result time calculated to hours
+# - $s the result time calculated to seconds
+# - $fm the result time, modulo minutes
+# - $fh the result time, floored hours
+#
+# example usage:
+# command: say goodbye for $fm:$fh:$fs
+# command: say banning $l for $s seconds, that means $m minutes, or $h hours
+###############
+commands:
+    jail:
+        ban: false
+        kick: false
+        command: jail $l $m

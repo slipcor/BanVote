@@ -1,32 +1,18 @@
 package net.slipcor.banvote;
 
-import java.util.logging.Logger;
+import org.bukkit.Bukkit;
 
 /**
  * ban vote logger class
  * 
- * @version v0.0.0
+ * @version v0.0.4
  * 
  * @author slipcor
  * 
  */
 
-public class BanVoteLogger {
-	private final Logger logger;
-	private final String prefix;
-
-	/**
-	 * Create a new BanVote Logger instance
-	 * 
-	 * @param lLogger
-	 *            referenced logger instance
-	 * @param sPrefix
-	 *            prefix for messages
-	 */
-	public BanVoteLogger(Logger lLogger, String sPrefix) {
-		logger = lLogger;
-		prefix = sPrefix;
-	}
+public class BVLogger {
+	private final String prefix = "[BanVote] ";
 
 	/**
 	 * Check if a given string is empty
@@ -52,7 +38,7 @@ public class BanVoteLogger {
 		if (isEmpty(s)) {
 			return;
 		}
-		logger.info(prefix + s);
+		Bukkit.getLogger().info(prefix + s);
 	}
 
 	/**
@@ -65,7 +51,7 @@ public class BanVoteLogger {
 		if (isEmpty(s)) {
 			return;
 		}
-		logger.warning(prefix + s);
+		Bukkit.getLogger().warning(prefix + s);
 	}
 
 	/**
@@ -78,6 +64,6 @@ public class BanVoteLogger {
 		if (isEmpty(s)) {
 			return;
 		}
-		logger.severe(prefix + s);
+		Bukkit.getLogger().severe(prefix + s);
 	}
 }

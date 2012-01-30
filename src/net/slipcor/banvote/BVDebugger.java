@@ -1,17 +1,15 @@
 package net.slipcor.banvote;
 
-import java.util.logging.Logger;
-
 /**
  * ban vote debugger class
  * 
- * @version v0.0.0
+ * @version v0.0.4
  * 
  * @author slipcor
  * 
  */
 
-public class BanVoteDebugger extends BanVoteLogger {
+public class BVDebugger extends BVLogger {
 	private final boolean active;
 
 	/**
@@ -24,8 +22,7 @@ public class BanVoteDebugger extends BanVoteLogger {
 	 * @param bActive
 	 *            activity state of the debugger
 	 */
-	public BanVoteDebugger(Logger lLogger, String sPrefix, boolean bActive) {
-		super(lLogger, sPrefix);
+	public BVDebugger(boolean bActive) {
 		active = bActive;
 	}
 

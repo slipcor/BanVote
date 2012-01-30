@@ -9,8 +9,8 @@ package net.slipcor.banvote;
  * 
  */
 
-public class BanVoteRunnable implements Runnable {
-	private final BanVoteClass banVote;
+public class BVRunnable implements Runnable {
+	private final BanVote banVote;
 
 	/**
 	 * create a runnable instance
@@ -18,7 +18,7 @@ public class BanVoteRunnable implements Runnable {
 	 * @param c
 	 *            ban vote class to hand over
 	 */
-	public BanVoteRunnable(BanVoteClass c) {
+	public BVRunnable(BanVote c) {
 		banVote = c;
 		BanVotePlugin.db.i("BanVoteRunnable constructor - "
 				+ banVote.getVoter() + " => " + banVote.getTarget());

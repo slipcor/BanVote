@@ -12,13 +12,13 @@ import de.stonedCRAFT.SimpleAFK.SimpleAFK;
 /**
  * ban vote class
  * 
- * @version v0.0.3
+ * @version v0.0.4
  * 
  * @author slipcor
  * 
  */
 
-public class BanVoteClass {
+public class BanVote {
 	protected static enum voteState {
 		MUTETARGET, MUTEVOTER, POSITIVE, NEGATIVE, NULL
 	}
@@ -55,7 +55,7 @@ public class BanVoteClass {
 	 * @param sReason
 	 *            the reason given for banning
 	 */
-	public BanVoteClass(Player pTarget, Player player, String sReason,
+	public BanVote(Player pTarget, Player player, String sReason,
 			byte bType) {
 		voter = player.getName();
 		target = pTarget.getName();
@@ -69,8 +69,8 @@ public class BanVoteClass {
 		BanVotePlugin.brc(ChatColor.GOLD + type + " reason: " + ChatColor.WHITE
 				+ sReason);
 		BanVotePlugin.brc(ChatColor.GOLD + "Say " + ChatColor.GREEN + "/"
-				+ type + "vote yes" + ChatColor.GOLD + " for banning, "
-				+ ChatColor.RED + "/" + type + "vote no" + ChatColor.GOLD
+				+ (bType>2?"custom":type) + "vote yes" + ChatColor.GOLD + " for banning, "
+				+ ChatColor.RED + "/" + (bType>2?"custom":type) + "vote no" + ChatColor.GOLD
 				+ " to vote against " + type + ".");
 		BanVotePlugin.brc(ChatColor.GOLD + "Muting " + ChatColor.RED
 				+ pTarget.getName() + ChatColor.GOLD + " for " + stageSeconds
@@ -85,7 +85,173 @@ public class BanVoteClass {
 				.getServer()
 				.getScheduler()
 				.scheduleSyncRepeatingTask(BanVotePlugin.instance,
-						new BanVoteRunnable(this), interval, interval);
+						new BVRunnable(this), interval, interval);
+	}
+	
+
+	/**
+	 * check if a player is muted
+	 * 
+	 * @param sPlayer
+	 *            the player name to check
+	 * @return true if the player is banned due to a running vote, false
+	 *         otherwise
+	 */
+	protected static boolean isChatBlocked(String sPlayer) {
+		BanVotePlugin.db.i("mute check: " + sPlayer);
+		for (BanVote banVote : BanVotePlugin.votes) {
+			BanVotePlugin.db.i("checking " + banVote.getState().name()
+					+ " vote: " + banVote.getVoter() + " => "
+					+ banVote.getTarget());
+			if ((banVote.getTarget().equals(sPlayer) && banVote.getState() == BanVote.voteState.MUTETARGET)
+					|| (banVote.getVoter().equals(sPlayer) && banVote
+							.getState() == BanVote.voteState.MUTEVOTER)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * check if a vote is possible
+	 * 
+	 * @param pTarget
+	 *            the player to check
+	 * @return false if a vote is running or vote on player is cooling down,
+	 *         true otherwise
+	 */
+	private static boolean isPossible(Player pTarget) {
+		BanVotePlugin.db.i("vote check: " + pTarget.getName());
+		if (getActiveVote() != null) {
+			return false; // vote still active
+		}
+		BanVotePlugin.db.i("vote check: " + pTarget.getName());
+		for (BanVote banVote : BanVotePlugin.votes) {
+			BanVotePlugin.db.i("checking " + banVote.getState().name()
+					+ " vote: " + banVote.getVoter() + " => "
+					+ banVote.getTarget());
+			if (banVote.getTarget().equals(pTarget.getName())) {
+				return false; // vote on target still cooling down
+			}
+		}
+		return true; // no vote active
+	}
+
+	/**
+	 * initiate a vote on a player
+	 * 
+	 * @param sTarget
+	 *            the player name to possibly vote
+	 * @param args
+	 *            the command arguments
+	 * @param player
+	 *            the player trying to vote
+	 */
+	protected static void init(String sTarget, String[] args, Player player, byte b) {
+		BanVotePlugin.db.i("vote init: " + player.getName() + " => " + sTarget);
+		BanVotePlugin.db.i("args: "
+				+ BanVotePlugin.instance.parseStringArray(args,b));
+
+		Player pTarget = null;
+
+		try {
+			pTarget = Bukkit.matchPlayer(sTarget).get(0);
+			BanVotePlugin.db.i("player found: " + pTarget.getName());
+		} catch (Exception e) {
+			BanVotePlugin.db.w("player not found.");
+		}
+		if (pTarget == null) {
+			BanVotePlugin.msg(player, "Player not found: " + sTarget);
+			return;
+		}
+		if (!isPossible(pTarget)) {
+			BanVotePlugin.msg(player, ChatColor.GOLD + "Vote on " + sTarget
+					+ " cooling down!");
+			return;
+		}
+		BanVotePlugin.db.i("possibility check positive");
+		BanVotePlugin.votes.add(new BanVote(pTarget, player, BanVotePlugin.instance
+				.parseStringArray(args, b), b));
+	}
+
+	/**
+	 * try to commit a vote
+	 * 
+	 * @param sVote
+	 *            vote value
+	 * @param player
+	 *            the player trying to vote
+	 */
+	protected static void commit(String sVote, Player player) {
+		BanVotePlugin.db.i("vote commit! " + player.getName() + " : " + sVote);
+		BanVote banVote = getActiveVote();
+		if (banVote == null) {
+			BanVotePlugin.msg(player, ChatColor.GOLD + "No vote active!");
+			return;
+		}
+		BanVotePlugin.db.i("vote activity check positive");
+
+		if (sVote.equals("+") || sVote.equalsIgnoreCase("yes")
+				|| sVote.equalsIgnoreCase("true")) {
+			BanVotePlugin.db.i("committing " + banVote.getState().name()
+					+ " vote: +" + banVote.getVoter() + " => "
+					+ banVote.getTarget());
+
+			banVote.commitYesVote(player);
+			return;
+		}
+
+		if (sVote.equals("-") || sVote.equalsIgnoreCase("no")
+				|| sVote.equalsIgnoreCase("false")) {
+			BanVotePlugin.db.i("committing " + banVote.getState().name()
+					+ " vote: -" + banVote.getVoter() + " => "
+					+ banVote.getTarget());
+
+			banVote.commitNoVote(player);
+			return;
+		}
+		BanVotePlugin.db.w("vote value check fail");
+		BanVotePlugin.msg(player, ChatColor.GOLD + "Invalid vote argument '"
+				+ sVote + "'!");
+		BanVotePlugin.msg(player, ChatColor.GOLD
+				+ "Use one of the following: '" + ChatColor.GREEN + "+"
+				+ ChatColor.GOLD + "', '" + ChatColor.GREEN + "yes"
+				+ ChatColor.GOLD + "', '" + ChatColor.GREEN + "true"
+				+ ChatColor.GOLD + "', '" + ChatColor.RED + "-"
+				+ ChatColor.GOLD + "', '" + ChatColor.RED + "no"
+				+ ChatColor.GOLD + "', '" + ChatColor.RED + "false"
+				+ ChatColor.GOLD + "'!");
+	}
+
+	/**
+	 * remove a vote class instance
+	 * 
+	 * @param banVote
+	 *            the instance to remove
+	 */
+	protected static void remove(BanVote banVote) {
+		BanVotePlugin.db.i("removing " + banVote.getState().name() + " vote: -"
+				+ banVote.getVoter() + " => " + banVote.getTarget());
+		BanVotePlugin.votes.remove(banVote);
+	}
+
+	/**
+	 * get the vote instance that currently is waiting for votes
+	 * 
+	 * @return active class instance, null otherwise
+	 */
+	private static BanVote getActiveVote() {
+		BanVotePlugin.db.i("getting active vote");
+		for (BanVote banVote : BanVotePlugin.votes) {
+			BanVotePlugin.db.i("checking " + banVote.getState().name()
+					+ " vote: -" + banVote.getVoter() + " => "
+					+ banVote.getTarget());
+			if (banVote.getState() == BanVote.voteState.MUTETARGET
+					|| banVote.getState() == BanVote.voteState.MUTEVOTER) {
+				return banVote;
+			}
+		}
+		return null;
 	}
 	
 	/**
@@ -94,12 +260,14 @@ public class BanVoteClass {
 	 * @return the output string
 	 */
 	protected static String parse(byte bType) {
-		if (bType == 1) {
+		if (bType == 0) {
+			return "mute";
+		} else if (bType == 1) {
 			return "kick";
 		} else if (bType == 2) {
 			return "ban";
 		}
-		return "mute";
+		return BanVotePlugin.instance.getCommandName(bType);
 	}
 	
 	/**
@@ -249,7 +417,7 @@ public class BanVoteClass {
 		} else {
 			// cooldown finished, remove!
 			Bukkit.getScheduler().cancelTask(RUN_ID);
-			BanVoteManager.remove(this);
+			BanVote.remove(this);
 		}
 	}
 
@@ -272,9 +440,9 @@ public class BanVoteClass {
 				+ (afkValue * iAfk) + (nonValue * non.size());
 
 		BanVotePlugin.brc(ChatColor.GOLD + "Voters for " + ChatColor.GREEN
-				+ "ban" + ChatColor.GOLD + ": " + getNames(yes));
+				+ type + ChatColor.GOLD + ": " + getNames(yes));
 		BanVotePlugin.brc(ChatColor.GOLD + "Voters for " + ChatColor.RED
-				+ "no ban" + ChatColor.GOLD + ": " + getNames(no));
+				+ "no " + type + ChatColor.GOLD + ": " + getNames(no));
 
 		if (calcPublic) {
 
@@ -357,17 +525,40 @@ public class BanVoteClass {
 	 *            value in minutes to be banned
 	 */
 	private void commitBan(String sBanTarget, int i) {
-		byte b = 0;
+		byte b = -1;
 		if (type.equals("kick")) {
+			b = 0;
+		} else if (type.equals("kick")) {
 			b = 1;
 		} else if (type.equals("ban")) {
 			b = 2;
+		} else {
+			b = BanVotePlugin.instance.getCommandNumber(type);
+			if (BanVotePlugin.commands.get(type).doesBan() || BanVotePlugin.commands.get(type).doesKick()) {
+				try {
+					Bukkit.getPlayer(sBanTarget).kickPlayer(
+							"You have been vote-banned for " + i + " minutes!");
+				} catch (Exception e) {
+					// mooh
+				}
+			}
+			String cmd = BanVotePlugin.instance.getCommand(b);
+			
+			cmd = commandReplace(cmd,sBanTarget,i);
+			
+			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), cmd);
+			return;
 		}
 		i = Math.abs(i);
-		BanVotePlugin.instance.bbm.add(voter + ":" + target + ":"
+		
+		if (b < 0) {
+			return;
+		}
+		
+		BanVoteResult.add(voter + ":" + target + ":"
 				+ Math.round(System.currentTimeMillis() / 1000) + ":" + i + ":"
 				+ target.equals(sBanTarget) + ":" + b);
-		BanVotePlugin.db.i("committing ban on " + target + " for " + i
+		BanVotePlugin.db.i("committing " + type + " on " + target + " for " + i
 				+ " minutes");
 		if (b == 0) {
 			BanVotePlugin
@@ -375,13 +566,44 @@ public class BanVoteClass {
 			BanVotePlugin.db.i("NOT kicking");
 			return;
 		}
-		try {
-			Bukkit.getPlayer(sBanTarget).kickPlayer(
-					"You have been vote-banned for " + i + " minutes!");
-		} catch (Exception e) {
-			// mooh
+		if (b == 1 || b == 2) {
+			try {
+				Bukkit.getPlayer(sBanTarget).kickPlayer(
+						"You have been vote-banned for " + i + " minutes!");
+			} catch (Exception e) {
+				// mooh
+			}
+			return;
 		}
+		
 	}
+
+	private String commandReplace(String cmd, String sBanTarget, int minutes) {
+		/*
+		 * 
+		 * 
+# - $w the player being the result winner
+# - $l the player being the result loser
+# - $m the result time calculated to minutes
+# - $h the result time calculated to hours
+# - $s the result time calculated to seconds
+# - $fm the result time, floored minutes
+# - $fh the result time, floored hours
+		 */
+
+		cmd = cmd.replace("$w",(voter.equals(sBanTarget)?target:voter));
+		cmd = cmd.replace("$l",sBanTarget);
+
+		cmd = cmd.replace("$m",String.valueOf(minutes));
+		cmd = cmd.replace("$h",String.valueOf(minutes/60));
+		cmd = cmd.replace("$s",String.valueOf(minutes*60));
+
+		cmd = cmd.replace("$fm",String.valueOf(minutes%60));
+		cmd = cmd.replace("$fh",String.valueOf(Math.floor(minutes/60)));
+		
+		return cmd;
+	}
+
 
 	/**
 	 * commit a negative vote
@@ -428,7 +650,7 @@ public class BanVoteClass {
 				.getServer()
 				.getScheduler()
 				.scheduleSyncRepeatingTask(BanVotePlugin.instance,
-						new BanVoteRunnable(this), interval, interval);
+						new BVRunnable(this), interval, interval);
 	}
 
 	/**

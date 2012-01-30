@@ -1,25 +1,27 @@
 package net.slipcor.banvote;
 
+
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerPreLoginEvent;
 
 /**
  * ban vote player listener class
  * 
- * @version v0.0.3
+ * @version v0.0.4
  * 
  * @author slipcor
  * 
  */
 
-public class BanVotePlayerListener extends PlayerListener {
+public class BVListener implements Listener {
 
-	@Override
-	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+	@EventHandler
+	public void playerCommand(PlayerCommandPreprocessEvent event) {
 		BanVotePlugin.db.i("onPlayerCommandPreprocess: "
 				+ event.getPlayer().getName());
 		if (isAllowed(event.getPlayer())) {
@@ -28,8 +30,8 @@ public class BanVotePlayerListener extends PlayerListener {
 		event.setCancelled(true);
 	}
 
-	@Override
-	public void onPlayerChat(PlayerChatEvent event) {
+	@EventHandler
+	public void playerChat(PlayerChatEvent event) {
 		BanVotePlugin.db.i("onPlayerChat: " + event.getPlayer().getName());
 		if (isAllowed(event.getPlayer())) {
 			return;
@@ -43,8 +45,8 @@ public class BanVotePlayerListener extends PlayerListener {
 	 * @return true if the player may talk/use commands, false otherwise
 	 */
 	private boolean isAllowed(Player p) {
-		if ((BanVotePlugin.instance.bm.isChatBlocked(p.getName()))
-				|| (BanVotePlugin.instance.bbm.isMuted(p.getName()))) {
+		if ((BanVote.isChatBlocked(p.getName()))
+				|| (BanVoteResult.isMuted(p.getName()))) {
 			BanVotePlugin
 					.msg(p, ChatColor.GOLD + "You are muted, please wait.");
 			return false;
@@ -52,10 +54,10 @@ public class BanVotePlayerListener extends PlayerListener {
 		return true;
 	}
 
-	@Override
-	public void onPlayerPreLogin(PlayerPreLoginEvent event) {
+	@EventHandler
+	public void playerPreLogin(PlayerPreLoginEvent event) {
 		BanVotePlugin.db.i("onPlayerPreLogin: " + event.getName());
-		if (BanVotePlugin.instance.bbm.isBanned(event.getName())) {
+		if (BanVoteResult.isBanned(event.getName())) {
 			BanVotePlugin.db.i("disallowing...");
 			event.disallow(PlayerPreLoginEvent.Result.KICK_OTHER,
 					"You are vote-banned!");

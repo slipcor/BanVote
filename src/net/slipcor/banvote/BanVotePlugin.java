@@ -1,21 +1,19 @@
 package net.slipcor.banvote;
 
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.logging.Logger;
+
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event.Type;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * plugin class
  * 
- * @version v0.0.3
+ * @version v0.0.4
  * 
  * @author slipcor
  * 
@@ -23,32 +21,26 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class BanVotePlugin extends JavaPlugin {
 	protected static BanVotePlugin instance;
-	protected final BanVoteManager bm = new BanVoteManager();
-	protected final BanVoteResultManager bbm = new BanVoteResultManager();
-	protected final BanVotePlayerListener pl = new BanVotePlayerListener();
+	protected final BVListener listen = new BVListener();
+	protected static HashMap<Integer, BanVoteResult> results = new HashMap<Integer, BanVoteResult>();
+	protected static HashSet<BanVote> votes = new HashSet<BanVote>();
 
-	protected static BanVoteDebugger db;
-	protected static BanVoteLogger log = new BanVoteLogger(
-			Logger.getLogger("Minecraft"), "[BanVote] ");
+	protected static BVDebugger db;
+	protected static BVLogger log = new BVLogger();
+	protected static HashMap<String, BanVoteCommand> commands = new HashMap<String, BanVoteCommand>();
 
 	@Override
 	public void onEnable() {
 		instance = this;
-		db = new BanVoteDebugger(Logger.getLogger("Minecraft"), "[BanVote] ",
-				getConfig().getBoolean("debug", false));
+		db = new BVDebugger(getConfig().getBoolean("debug", false));
 		db.i("enabling...");
 		db.i("registering events...");
-		getServer().getPluginManager().registerEvent(Type.PLAYER_CHAT, pl,
-				Priority.Normal, this);
-		getServer().getPluginManager().registerEvent(
-				Type.PLAYER_COMMAND_PREPROCESS, pl, Priority.Normal, this);
-		getServer().getPluginManager().registerEvent(Type.PLAYER_PRELOGIN, pl,
-				Priority.Normal, this);
+		getServer().getPluginManager().registerEvents(listen, this);
 
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 
-		BanVoteClass.set(getConfig().getConfigurationSection("settings")
+		BanVote.set(getConfig().getConfigurationSection("settings")
 				.getValues(false));
 
 		if (getConfig().get("bans") != null) {
@@ -62,10 +54,18 @@ public class BanVotePlugin extends JavaPlugin {
 			saveConfig();
 
 			for (String s : bans) {
-				bbm.add(s);
+				BanVoteResult.add(s);
 			}
 			saveConfig();
 		}
+		commands.clear();
+		if (getConfig().get("commands") != null) {
+			for (Object val : getConfig().getConfigurationSection("commands")
+					.getValues(false).keySet()) {
+				commands.put(val.toString(), new BanVoteCommand(getConfig().getBoolean("commands."+val.toString()+".ban"),getConfig().getBoolean("commands."+val.toString()+".kick"),getConfig().getString("commands."+val.toString()+".command")));
+			}
+		}
+		
 		log.i(getDescription().getVersion() + " enabled");
 	}
 
@@ -91,7 +91,7 @@ public class BanVotePlugin extends JavaPlugin {
 		Player player = (Player) sender;
 
 		if (!sCmd.equals("banvote") && !sCmd.equals("mutevote")
-				&& !sCmd.equals("kickvote")) {
+				&& !sCmd.equals("kickvote") && !sCmd.equals("customvote")) {
 			if (sCmd.equals("release")) {
 				return onAdminCommand(player, args);
 			} else {
@@ -103,15 +103,18 @@ public class BanVotePlugin extends JavaPlugin {
 			b = 2;
 		} else if (sCmd.startsWith("kick")) {
 			b = 1;
+		} else if (sCmd.startsWith("mute")) {
+			b = 0;
+		} else {
+			b = getCommandNumber(args[1]);
 		}
 
-		String type = BanVoteClass.parse(b);
-		
+		String type = b<3?BanVote.parse(b):sCmd.substring(0, sCmd.length()-4);
+
 		db.i("onCommand: " + type + "vote command");
 
-		if (!player.hasPermission("" + type + "vote.vote")) {
-			BanVotePlugin.msg(player, ChatColor.RED
-					+ "You don't have permission!");
+		if (!player.hasPermission(type + "vote.vote")) {
+			BanVotePlugin.msg(player, "§cYou don't have permission!");
 			return true;
 		}
 
@@ -119,35 +122,68 @@ public class BanVotePlugin extends JavaPlugin {
 			return false;
 		}
 
-		db.i("onCommand: args: " + parseStringArray(args));
+		db.i("onCommand: args: " + parseStringArray(args,(byte)0));
 
 		if (args.length > 1) {
-			bm.init(args[0], args, player, b);
+			BanVote.init(args[0], args, player, b);
 			return true;
 		}
 
 		if (args[0].equalsIgnoreCase("help")) {
-			msg(player, ChatColor.GOLD + "To start a vote to " + type
-					+ " a player type: ");
-			msg(player, ChatColor.AQUA + "/" + type
-					+ "vote [playername] [reason]");
-			msg(player, ChatColor.GOLD + "Once started, type "
-					+ ChatColor.GREEN + "/" + type + "vote [+|yes|true]"
-					+ ChatColor.GOLD + " to vote to ban");
-			msg(player, ChatColor.GOLD + "or " + ChatColor.RED + "/" + type
-					+ "vote [-|no|false]" + ChatColor.GOLD + " to vote not to "
-					+ type + ".");
-			msg(player, ChatColor.GOLD + "A vote against counts as "
-					+ ChatColor.RED + "-4" + ChatColor.GOLD
-					+ " votes towards a " + type + "");
-			msg(player, ChatColor.GOLD + "A non-vote counts as "
-					+ ChatColor.RED + "-0.25" + ChatColor.GOLD
-					+ " votes towards a " + type + "");
+			msg(player, "§6To start a vote to " + type + " a player type: ");
+			msg(player, "§b/" + type + "vote [playername] [reason]");
+			msg(player, "§6Once started, type " + "§a/" + type
+					+ "vote [+|yes|true]" + " §6to vote to ban");
+			msg(player, "§6or §c/" + type
+					+ "vote [-|no|false] §6to vote not to " + type + ".");
+			msg(player, "§6A vote against counts as "
+					+ "§c-4 §6votes towards a " + type + "");
+			msg(player, "§6A non-vote counts as "
+					+ "§c-0.25 §6votes towards a " + type + "");
 			return true;
 		}
 
-		bm.commit(args[0], player);
+		BanVote.commit(args[0], player);
 		return true;
+	}
+
+	protected byte getCommandNumber(String sCmd) {
+		byte i = 3;
+		sCmd = sCmd.substring(0,sCmd.length()-4);
+		System.out.print("getCommandNumber: "+sCmd);
+		
+		for (String name : commands.keySet()) {
+			System.out.print(name + " = " + sCmd + "?");
+			if (name.equals(sCmd)) {
+
+				System.out.print("return "+String.valueOf(i));
+				return i;
+			}
+			i++;
+		}
+		System.out.print("return -1");
+		return -1;
+	}
+	
+	protected String getCommand(byte b) {
+		for (BanVoteCommand cmd : commands.values()) {
+			if (b-- == 3) {
+				return cmd.getCommand();
+			}
+		}
+		return null;
+	}
+
+	public String getCommandName(byte bType) {
+		for (String name : commands.keySet()) {
+			System.out.print("-command: "+name+" = "+String.valueOf(bType)+"?");
+			if (bType-- == 3) {
+				System.out.print("return: "+name);
+				return name;
+			}
+		}
+		System.out.print("return: null");
+		return null;
 	}
 
 	/**
@@ -165,19 +201,17 @@ public class BanVotePlugin extends JavaPlugin {
 		}
 
 		if (!player.hasPermission("banvote.admin")) {
-			BanVotePlugin.msg(player, ChatColor.RED
-					+ "You don't have permission!");
+			BanVotePlugin.msg(player, "§cYou don't have permission!");
 			return true;
 		}
 
 		if (args[0].equals("list")) {
-			for (int i : bbm.results.keySet()) {
-				BanVoteResult ban = bbm.results.get(i);
-				BanVotePlugin.msg(player,
-						ChatColor.GOLD + "#" + i + ": " + ban.getInfo());
+			for (int i : results.keySet()) {
+				BanVoteResult ban = results.get(i);
+				BanVotePlugin.msg(player, "§6#" + i + ": " + ban.getInfo());
 			}
-			if (bbm.results.size() < 1) {
-				BanVotePlugin.msg(player, ChatColor.GOLD + "No bans active!");
+			if (results.size() < 1) {
+				BanVotePlugin.msg(player, "§6No bans active!");
 			}
 			return true;
 		}
@@ -185,14 +219,14 @@ public class BanVotePlugin extends JavaPlugin {
 		String banPlayer = "";
 		try {
 			int i = Integer.parseInt(args[0]);
-			banPlayer = bbm.results.get(i).getResultPlayerName();
-			bbm.remove(i);
+			banPlayer = results.get(i).getResultPlayerName();
+			BanVoteResult.remove(i);
 		} catch (Exception e) {
-			BanVotePlugin.msg(player, ChatColor.RED
-					+ "Invalid argument! Not a number: " + args[0]);
+			BanVotePlugin.msg(player, "§cInvalid argument! Not a number: "
+					+ args[0]);
 			return true;
 		}
-		BanVotePlugin.msg(player, ChatColor.GREEN + "Unbanned: " + banPlayer);
+		BanVotePlugin.msg(player, "§aUnbanned: " + banPlayer);
 		return true;
 	}
 
@@ -209,8 +243,7 @@ public class BanVotePlugin extends JavaPlugin {
 			return;
 		}
 		BanVotePlugin.db.i("@" + player.getName() + ": " + message);
-		player.sendMessage("[" + ChatColor.AQUA + "BanVote" + ChatColor.WHITE
-				+ "] " + message);
+		player.sendMessage("[§bBanVote§f] " + message);
 	}
 
 	/**
@@ -224,8 +257,7 @@ public class BanVotePlugin extends JavaPlugin {
 			return;
 		}
 		BanVotePlugin.db.i("@all: " + message);
-		Bukkit.broadcastMessage("[" + ChatColor.AQUA + "BanVote"
-				+ ChatColor.WHITE + "] " + message);
+		Bukkit.broadcastMessage("[§bBanVote§f] " + message);
 	}
 
 	/**
@@ -233,11 +265,12 @@ public class BanVotePlugin extends JavaPlugin {
 	 * 
 	 * @param args
 	 *            the string array to join
+	 * @param b 
 	 * @return a string joined by spaces
 	 */
-	protected String parseStringArray(String[] args) {
+	protected String parseStringArray(String[] args, byte b) {
 		String s = "";
-		for (int i = 1; i < args.length; i++) {
+		for (int i = (b<3?1:2); i < args.length; i++) {
 			s += s.equals("") ? args[i] : (" " + args[i]);
 		}
 		return s;
