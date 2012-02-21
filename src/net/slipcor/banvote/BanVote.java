@@ -240,7 +240,7 @@ public class BanVote {
 	 * 
 	 * @return active class instance, null otherwise
 	 */
-	private static BanVote getActiveVote() {
+	static BanVote getActiveVote() {
 		BanVotePlugin.db.i("getting active vote");
 		for (BanVote banVote : BanVotePlugin.votes) {
 			BanVotePlugin.db.i("checking " + banVote.getState().name()
@@ -268,20 +268,6 @@ public class BanVote {
 			return "ban";
 		}
 		return BanVotePlugin.instance.getCommandName(bType);
-	}
-	
-	/**
-	 * parse ban vote type: byte to string
-	 * @param bType the input byte
-	 * @return the output string
-	 */
-	protected static byte parse(String sType) {
-		if (sType.equals("kick")) {
-			return 1;
-		} else if (sType.equals("ban")) {
-			return 2;
-		}
-		return 0;
 	}
 
 	/**
@@ -680,5 +666,10 @@ public class BanVote {
 		negMinutes = Integer.parseInt(String.valueOf(m.get("NegMinutes")));
 		coolMinutes = Integer.parseInt(String.valueOf(m.get("CoolMinutes")));
 		calcPublic = Boolean.parseBoolean(String.valueOf(m.get("CalcPublic")));
+	}
+
+
+	public String getType() {
+		return type;
 	}
 }

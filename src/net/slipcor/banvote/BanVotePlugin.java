@@ -108,10 +108,19 @@ public class BanVotePlugin extends JavaPlugin {
 		} else if (sCmd.startsWith("mute")) {
 			b = 0;
 		} else {
-			b = getCommandNumber(args[1]);
+			if (args.length > 1) {
+				b = getCommandNumber(args[1]);
+			} else {
+				BanVote banVote = BanVote.getActiveVote();
+				b = getCommandNumber(banVote.getType());
+			}
+			if (b < 0) {
+				msg(player, "§cUnknown custom vote: "+args[1]);
+				return true;
+			}
 		}
 
-		String type = b<3?BanVote.parse(b):sCmd.substring(0, sCmd.length()-4);
+		String type = b<3?BanVote.parse(b):sCmd.substring(0, sCmd.length());
 
 		db.i("onCommand: " + type + "vote command");
 
@@ -151,7 +160,7 @@ public class BanVotePlugin extends JavaPlugin {
 
 	protected byte getCommandNumber(String sCmd) {
 		byte i = 3;
-		sCmd = sCmd.substring(0,sCmd.length()-4);
+		sCmd = sCmd.substring(0,sCmd.length());
 		System.out.print("getCommandNumber: "+sCmd);
 		
 		for (String name : commands.keySet()) {
