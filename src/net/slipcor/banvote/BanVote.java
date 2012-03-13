@@ -55,8 +55,7 @@ public class BanVote {
 	 * @param sReason
 	 *            the reason given for banning
 	 */
-	public BanVote(Player pTarget, Player player, String sReason,
-			byte bType) {
+	public BanVote(Player pTarget, Player player, String sReason, byte bType) {
 		voter = player.getName();
 		target = pTarget.getName();
 		state = voteState.MUTETARGET;
@@ -69,8 +68,9 @@ public class BanVote {
 		BanVotePlugin.brc(ChatColor.GOLD + type + " reason: " + ChatColor.WHITE
 				+ sReason);
 		BanVotePlugin.brc(ChatColor.GOLD + "Say " + ChatColor.GREEN + "/"
-				+ (bType>2?"custom":type) + "vote yes" + ChatColor.GOLD + " for banning, "
-				+ ChatColor.RED + "/" + (bType>2?"custom":type) + "vote no" + ChatColor.GOLD
+				+ (bType > 2 ? "custom" : type) + "vote yes" + ChatColor.GOLD
+				+ " for banning, " + ChatColor.RED + "/"
+				+ (bType > 2 ? "custom" : type) + "vote no" + ChatColor.GOLD
 				+ " to vote against " + type + ".");
 		BanVotePlugin.brc(ChatColor.GOLD + "Muting " + ChatColor.RED
 				+ pTarget.getName() + ChatColor.GOLD + " for " + stageSeconds
@@ -87,7 +87,6 @@ public class BanVote {
 				.scheduleSyncRepeatingTask(BanVotePlugin.instance,
 						new BVRunnable(this), interval, interval);
 	}
-	
 
 	/**
 	 * check if a player is muted
@@ -147,10 +146,11 @@ public class BanVote {
 	 * @param player
 	 *            the player trying to vote
 	 */
-	protected static void init(String sTarget, String[] args, Player player, byte b) {
+	protected static void init(String sTarget, String[] args, Player player,
+			byte b) {
 		BanVotePlugin.db.i("vote init: " + player.getName() + " => " + sTarget);
 		BanVotePlugin.db.i("args: "
-				+ BanVotePlugin.instance.parseStringArray(args,b));
+				+ BanVotePlugin.instance.parseStringArray(args, b));
 
 		Player pTarget = null;
 
@@ -170,8 +170,8 @@ public class BanVote {
 			return;
 		}
 		BanVotePlugin.db.i("possibility check positive");
-		BanVotePlugin.votes.add(new BanVote(pTarget, player, BanVotePlugin.instance
-				.parseStringArray(args, b), b));
+		BanVotePlugin.votes.add(new BanVote(pTarget, player,
+				BanVotePlugin.instance.parseStringArray(args, b), b));
 	}
 
 	/**
@@ -240,7 +240,7 @@ public class BanVote {
 	 * 
 	 * @return active class instance, null otherwise
 	 */
-	static BanVote getActiveVote() {
+	private static BanVote getActiveVote() {
 		BanVotePlugin.db.i("getting active vote");
 		for (BanVote banVote : BanVotePlugin.votes) {
 			BanVotePlugin.db.i("checking " + banVote.getState().name()
@@ -253,10 +253,12 @@ public class BanVote {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * parse ban vote type: byte to string
-	 * @param bType the input byte
+	 * 
+	 * @param bType
+	 *            the input byte
 	 * @return the output string
 	 */
 	protected static String parse(byte bType) {
@@ -268,6 +270,26 @@ public class BanVote {
 			return "ban";
 		}
 		return BanVotePlugin.instance.getCommandName(bType);
+	}
+
+	/**
+	 * 
+	 * parse ban vote type: byte to string
+	 * 
+	 * @param bType
+	 *            the input byte
+	 * 
+	 * @return the output string
+	 */
+
+	protected static byte parse(String sType) {
+
+		if (sType.equals("kick")) {
+			return 1;
+		} else if (sType.equals("ban")) {
+			return 2;
+		}
+		return 0;
 	}
 
 	/**
@@ -380,7 +402,8 @@ public class BanVote {
 				state = voteState.MUTEVOTER;
 				BanVotePlugin.brc(ChatColor.GOLD + "Muting " + ChatColor.GREEN
 						+ voter + ChatColor.GOLD + " for " + stageSeconds
-						+ " seconds, so " + ChatColor.RED + target + ChatColor.GOLD + " can explain.");
+						+ " seconds, so " + ChatColor.RED + target
+						+ ChatColor.GOLD + " can explain.");
 				BanVotePlugin.log.i("" + type
 						+ " vote: stage 2 - muting the voter");
 			} else {
@@ -503,7 +526,8 @@ public class BanVote {
 	}
 
 	/**
-	 * actually commit the ban/mute/kick command, TODO calculate ban/mute count to maybe perm ban
+	 * actually commit the ban/mute/kick command, TODO calculate ban/mute count
+	 * to maybe perm ban
 	 * 
 	 * @param target
 	 *            playername to be banned
@@ -512,7 +536,7 @@ public class BanVote {
 	 */
 	private void commitBan(String sBanTarget, int i) {
 		byte b = -1;
-		if (type.equals("kick")) {
+		if (type.equals("mute")) {
 			b = 0;
 		} else if (type.equals("kick")) {
 			b = 1;
@@ -520,7 +544,8 @@ public class BanVote {
 			b = 2;
 		} else {
 			b = BanVotePlugin.instance.getCommandNumber(type);
-			if (BanVotePlugin.commands.get(type).doesBan() || BanVotePlugin.commands.get(type).doesKick()) {
+			if (BanVotePlugin.commands.get(type).doesBan()
+					|| BanVotePlugin.commands.get(type).doesKick()) {
 				try {
 					Bukkit.getPlayer(sBanTarget).kickPlayer(
 							"You have been vote-banned for " + i + " minutes!");
@@ -529,18 +554,18 @@ public class BanVote {
 				}
 			}
 			String cmd = BanVotePlugin.instance.getCommand(b);
-			
-			cmd = commandReplace(cmd,sBanTarget,i);
-			
+
+			cmd = commandReplace(cmd, sBanTarget, i);
+
 			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), cmd);
 			return;
 		}
 		i = Math.abs(i);
-		
+
 		if (b < 0) {
 			return;
 		}
-		
+
 		BanVoteResult.add(voter + ":" + target + ":"
 				+ Math.round(System.currentTimeMillis() / 1000) + ":" + i + ":"
 				+ target.equals(sBanTarget) + ":" + b);
@@ -561,35 +586,32 @@ public class BanVote {
 			}
 			return;
 		}
-		
+
 	}
 
 	private String commandReplace(String cmd, String sBanTarget, int minutes) {
 		/*
 		 * 
 		 * 
-# - $w the player being the result winner
-# - $l the player being the result loser
-# - $m the result time calculated to minutes
-# - $h the result time calculated to hours
-# - $s the result time calculated to seconds
-# - $fm the result time, floored minutes
-# - $fh the result time, floored hours
+		 * # - $w the player being the result winner # - $l the player being the
+		 * result loser # - $m the result time calculated to minutes # - $h the
+		 * result time calculated to hours # - $s the result time calculated to
+		 * seconds # - $fm the result time, floored minutes # - $fh the result
+		 * time, floored hours
 		 */
 
-		cmd = cmd.replace("$w",(voter.equals(sBanTarget)?target:voter));
-		cmd = cmd.replace("$l",sBanTarget);
+		cmd = cmd.replace("$w", (voter.equals(sBanTarget) ? target : voter));
+		cmd = cmd.replace("$l", sBanTarget);
 
-		cmd = cmd.replace("$m",String.valueOf(minutes));
-		cmd = cmd.replace("$h",String.valueOf(minutes/60));
-		cmd = cmd.replace("$s",String.valueOf(minutes*60));
+		cmd = cmd.replace("$m", String.valueOf(minutes));
+		cmd = cmd.replace("$h", String.valueOf(minutes / 60));
+		cmd = cmd.replace("$s", String.valueOf(minutes * 60));
 
-		cmd = cmd.replace("$fm",String.valueOf(minutes%60));
-		cmd = cmd.replace("$fh",String.valueOf(Math.floor(minutes/60)));
-		
+		cmd = cmd.replace("$fm", String.valueOf(minutes % 60));
+		cmd = cmd.replace("$fh", String.valueOf(Math.floor(minutes / 60)));
+
 		return cmd;
 	}
-
 
 	/**
 	 * commit a negative vote
@@ -666,10 +688,5 @@ public class BanVote {
 		negMinutes = Integer.parseInt(String.valueOf(m.get("NegMinutes")));
 		coolMinutes = Integer.parseInt(String.valueOf(m.get("CoolMinutes")));
 		calcPublic = Boolean.parseBoolean(String.valueOf(m.get("CalcPublic")));
-	}
-
-
-	public String getType() {
-		return type;
 	}
 }

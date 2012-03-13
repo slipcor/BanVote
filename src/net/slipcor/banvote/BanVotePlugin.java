@@ -3,7 +3,6 @@ package net.slipcor.banvote;
 import java.util.HashMap;
 import java.util.HashSet;
 
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -66,6 +65,8 @@ public class BanVotePlugin extends JavaPlugin {
 			}
 		}
 		
+		Tracker tracker = new Tracker(this);
+        tracker.start();
 		BVUpdate.updateCheck(this);
 		
 		log.i(getDescription().getVersion() + " enabled");
@@ -75,6 +76,7 @@ public class BanVotePlugin extends JavaPlugin {
 	public void onDisable() {
 		// TODO: save ban stats/times
 		db.i("disabling...");
+		Tracker.stop();
 		db.i("canceling tasks...");
 		Bukkit.getScheduler().cancelTasks(this);
 		log.i(getDescription().getVersion() + " disabled");
@@ -108,19 +110,10 @@ public class BanVotePlugin extends JavaPlugin {
 		} else if (sCmd.startsWith("mute")) {
 			b = 0;
 		} else {
-			if (args.length > 1) {
-				b = getCommandNumber(args[1]);
-			} else {
-				BanVote banVote = BanVote.getActiveVote();
-				b = getCommandNumber(banVote.getType());
-			}
-			if (b < 0) {
-				msg(player, "§cUnknown custom vote: "+args[1]);
-				return true;
-			}
+			b = getCommandNumber(args[1]);
 		}
 
-		String type = b<3?BanVote.parse(b):sCmd.substring(0, sCmd.length());
+		String type = b<3?BanVote.parse(b):sCmd.substring(0, sCmd.length()-4);
 
 		db.i("onCommand: " + type + "vote command");
 
@@ -160,7 +153,7 @@ public class BanVotePlugin extends JavaPlugin {
 
 	protected byte getCommandNumber(String sCmd) {
 		byte i = 3;
-		sCmd = sCmd.substring(0,sCmd.length());
+		sCmd = sCmd.substring(0,sCmd.length()-4);
 		System.out.print("getCommandNumber: "+sCmd);
 		
 		for (String name : commands.keySet()) {

@@ -1,5 +1,6 @@
 CHANGELOG
 
+v0.0.4.7 - fix NPE due to /mutevote
 v0.0.4 - +customvote
 v0.0.3 - +kick ; +mute
 v0.0.2 - config options, unbanning
