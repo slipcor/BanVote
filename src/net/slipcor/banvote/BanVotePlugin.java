@@ -85,22 +85,22 @@ public class BanVotePlugin extends JavaPlugin {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String sCmd,
 			String[] args) {
-
+		if (sCmd.equals("release")) {
+			return onAdminCommand(sender, args);
+		}
+		
 		if (!(sender instanceof Player)) {
 			db.i("onCommand: sent from console");
-			sender.sendMessage("[BanVote] Commands only usable ingame!");
+			sender.sendMessage("[BanVote] Console only has access to /release");
 			return true;
 		}
+		
 		byte b = 0;
 		Player player = (Player) sender;
 
 		if (!sCmd.equals("banvote") && !sCmd.equals("mutevote")
 				&& !sCmd.equals("kickvote") && !sCmd.equals("customvote")) {
-			if (sCmd.equals("release")) {
-				return onAdminCommand(player, args);
-			} else {
-				return false;
-			}
+			return false;
 		}
 
 		if (sCmd.startsWith("ban")) {
@@ -193,29 +193,29 @@ public class BanVotePlugin extends JavaPlugin {
 	/**
 	 * parse admin (unban) command
 	 * 
-	 * @param player
+	 * @param sender
 	 *            player committing the command
 	 * @param args
 	 *            vote UID to unban
 	 * @return true if args correct, false otherwise
 	 */
-	private boolean onAdminCommand(Player player, String[] args) {
+	private boolean onAdminCommand(CommandSender sender, String[] args) {
 		if (args == null || args.length != 1) {
 			return false;
 		}
 
-		if (!player.hasPermission("banvote.admin")) {
-			BanVotePlugin.msg(player, "§cYou don't have permission!");
+		if (!sender.hasPermission("banvote.admin")) {
+			BanVotePlugin.msg(sender, "§cYou don't have permission!");
 			return true;
 		}
 
 		if (args[0].equals("list")) {
 			for (int i : results.keySet()) {
 				BanVoteResult ban = results.get(i);
-				BanVotePlugin.msg(player, "§6#" + i + ": " + ban.getInfo());
+				BanVotePlugin.msg(sender, "§6#" + i + ": " + ban.getInfo());
 			}
 			if (results.size() < 1) {
-				BanVotePlugin.msg(player, "§6No bans active!");
+				BanVotePlugin.msg(sender, "§6No bans active!");
 			}
 			return true;
 		}
@@ -226,28 +226,30 @@ public class BanVotePlugin extends JavaPlugin {
 			banPlayer = results.get(i).getResultPlayerName();
 			BanVoteResult.remove(i);
 		} catch (Exception e) {
-			BanVotePlugin.msg(player, "§cInvalid argument! Not a number: "
+			BanVotePlugin.msg(sender, "§cInvalid argument! Not a number: "
 					+ args[0]);
 			return true;
 		}
-		BanVotePlugin.msg(player, "§aUnbanned: " + banPlayer);
+		BanVotePlugin.msg(sender, "§aUnbanned: " + banPlayer);
 		return true;
 	}
 
 	/**
 	 * send a prefixed message to a player
 	 * 
-	 * @param player
-	 *            player to send the message to
+	 * @param sender
+	 *            player/console to send the message to
 	 * @param message
 	 *            string to prefix and send
 	 */
-	protected static void msg(Player player, String message) {
+	protected static void msg(CommandSender sender, String message) {
 		if (message == null || message.equals("")) {
 			return;
 		}
-		BanVotePlugin.db.i("@" + player.getName() + ": " + message);
-		player.sendMessage("[§bBanVote§f] " + message);
+		if (sender instanceof Player) {
+			BanVotePlugin.db.i("@" + sender.getName() + ": " + message);
+		}
+		sender.sendMessage("[§bBanVote§f] " + message);
 	}
 
 	/**

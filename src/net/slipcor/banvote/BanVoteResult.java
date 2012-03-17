@@ -4,7 +4,9 @@ package net.slipcor.banvote;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
 /**
  * ban vote result class
@@ -13,7 +15,7 @@ import org.bukkit.ChatColor;
  * 
  * the actual ban/mute resulting from a vote
  * 
- * @version v0.0.3
+ * @version v0.0.4
  * 
  * @author slipcor
  * 
@@ -177,6 +179,12 @@ public class BanVoteResult {
 	 * @return true if a ban is active, false otherwise
 	 */
 	protected static boolean isBanned(String sPlayer) {
+		Player p = Bukkit.getPlayer(sPlayer);
+		if (p != null) {
+			if (p.hasPermission("banvote.admin")) {
+				return false;
+			}
+		}
 		HashMap<Integer, String> map = getList(true);
 
 		for (int i : map.keySet()) {
@@ -197,6 +205,12 @@ public class BanVoteResult {
 	 * @return true if a mute is active, false otherwise
 	 */
 	protected static boolean isMuted(String sPlayer) {
+		Player p = Bukkit.getPlayer(sPlayer);
+		if (p != null) {
+			if (p.hasPermission("banvote.admin")) {
+				return false;
+			}
+		}
 		HashMap<Integer, String> map = getList(false);
 
 		for (int i : map.keySet()) {

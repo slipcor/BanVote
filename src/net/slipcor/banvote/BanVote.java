@@ -41,6 +41,7 @@ public class BanVote {
 	private String target;
 	private int RUN_ID;
 	private boolean half = false;
+	private String reason;
 
 	private HashSet<String> yes = new HashSet<String>();
 	private HashSet<String> no = new HashSet<String>();
@@ -69,7 +70,7 @@ public class BanVote {
 				+ sReason);
 		BanVotePlugin.brc(ChatColor.GOLD + "Say " + ChatColor.GREEN + "/"
 				+ (bType > 2 ? "custom" : type) + "vote yes" + ChatColor.GOLD
-				+ " for banning, " + ChatColor.RED + "/"
+				+ " for " + type + ", " + ChatColor.RED + "/"
 				+ (bType > 2 ? "custom" : type) + "vote no" + ChatColor.GOLD
 				+ " to vote against " + type + ".");
 		BanVotePlugin.brc(ChatColor.GOLD + "Muting " + ChatColor.RED
@@ -80,6 +81,8 @@ public class BanVote {
 				+ "], reason: " + sReason);
 		int interval = 20 * Math.round(stageSeconds / 2); // half a minute
 		BanVotePlugin.db.i("" + type + "Vote interval: " + interval + " ticks");
+		
+		reason = sReason;
 
 		RUN_ID = Bukkit
 				.getServer()
@@ -97,6 +100,12 @@ public class BanVote {
 	 *         otherwise
 	 */
 	protected static boolean isChatBlocked(String sPlayer) {
+		Player p = Bukkit.getPlayer(sPlayer);
+		if (p != null) {
+			if (p.hasPermission("banvote.admin")) {
+				return false;
+			}
+		}
 		BanVotePlugin.db.i("mute check: " + sPlayer);
 		for (BanVote banVote : BanVotePlugin.votes) {
 			BanVotePlugin.db.i("checking " + banVote.getState().name()
@@ -598,6 +607,7 @@ public class BanVote {
 		 * result time calculated to hours # - $s the result time calculated to
 		 * seconds # - $fm the result time, floored minutes # - $fh the result
 		 * time, floored hours
+		 * $r the reason
 		 */
 
 		cmd = cmd.replace("$w", (voter.equals(sBanTarget) ? target : voter));
@@ -609,6 +619,8 @@ public class BanVote {
 
 		cmd = cmd.replace("$fm", String.valueOf(minutes % 60));
 		cmd = cmd.replace("$fh", String.valueOf(Math.floor(minutes / 60)));
+		reason = reason == "null" ? "" : reason;
+		cmd = cmd.replace("$r", reason);
 
 		return cmd;
 	}
