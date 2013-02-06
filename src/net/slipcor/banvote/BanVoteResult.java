@@ -3,6 +3,10 @@ package net.slipcor.banvote;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import net.slipcor.banvote.api.BanVoteCommand;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -46,8 +50,8 @@ public class BanVoteResult {
 	 * @param bType
 	 *            0 = mute ; 1 = kick ; 2 = ban
 	 */
-	public BanVoteResult(int uid, String sVoter, String sTarget, long lTimestamp,
-			int iInterval, boolean bResult, byte bType) {
+	public BanVoteResult(final int uid, final String sVoter, final String sTarget, final long lTimestamp,
+			final int iInterval, final boolean bResult, final byte bType) {
 		voter = sVoter;
 		target = sTarget;
 		timestamp = lTimestamp;
@@ -62,16 +66,16 @@ public class BanVoteResult {
 	/**
 	 * add a string to the bans/mutes
 	 * 
-	 * @param s
+	 * @param strBan
 	 *            ban string
 	 */
-	protected static void add(String s) {
-		BanVotePlugin.db.i("banning : " + s);
-		String[] args = s.split(":");
-		int i = getFreeID();
+	public static void add(final String strBan) {
+		BanVotePlugin.debug.info("banning : " + strBan);
+		final String[] args = strBan.split(":");
+		final int freeID = getFreeID();
 		BanVotePlugin.results.put(
-				i,
-				new BanVoteResult(i, args[0], args[1], Long.parseLong(args[2]),
+				freeID,
+				new BanVoteResult(freeID, args[0], args[1], Long.parseLong(args[2]),
 						Integer.parseInt(args[3]), args[4]
 								.equalsIgnoreCase("true"), Byte
 								.parseByte(args[5])));
@@ -83,22 +87,21 @@ public class BanVoteResult {
 	 * @return an unused index
 	 */
 	private static int getFreeID() {
-		int i = 0;
-		while (BanVotePlugin.results.get(++i) != null)
-			;
-		return i;
+		int pos = 0;
+		while (BanVotePlugin.results.get(++pos) != null);
+		return pos;
 	}
 
 	/**
 	 * check if a given UID can be removed and do it
 	 * 
-	 * @param i
+	 * @param pos
 	 *            the ban/mute UID
 	 * @return true if the ban/mute was removed, false otherwise
 	 */
-	protected static boolean checkRemove(int i) {
-		if (BanVotePlugin.results.get(i) != null && BanVotePlugin.results.get(i).over()) {
-			remove(i);
+	protected static boolean checkRemove(final int pos) {
+		if (BanVotePlugin.results.get(pos) != null && BanVotePlugin.results.get(pos).over()) {
+			remove(pos);
 			return true;
 		}
 		return false;
@@ -108,7 +111,7 @@ public class BanVoteResult {
 	 * check all bans/mutes if they can be removed and do that if possible
 	 */
 	protected static void checkRemove() {
-		HashSet<Integer> uids = new HashSet<Integer>();
+		final Set<Integer> uids = new HashSet<Integer>();
 		for (int i : BanVotePlugin.results.keySet()) {
 			uids.add(i);
 		}
@@ -120,31 +123,32 @@ public class BanVoteResult {
 	/**
 	 * remove a given UID from the bans/mutes
 	 * 
-	 * @param i
+	 * @param pos
 	 *            the ban UID to remove
 	 */
-	protected static void remove(int i) {
-		BanVotePlugin.results.remove(i);
-		BanVotePlugin.instance.getConfig().set("bans.b" + i, null);
+	protected static void remove(final int pos) {
+		BanVotePlugin.results.remove(pos);
+		BanVotePlugin.instance.getConfig().set("bans.b" + pos, null);
 		BanVotePlugin.instance.saveConfig();
 	}
 
 	/**
 	 * read a map of UID => banned/muted player name
 	 * 
-	 * @param b
+	 * @param banned
 	 *            banned = true; muted = false
 	 * @return a map of all band UIDs mapped to the banned player name
 	 */
-	protected static HashMap<Integer, String> getList(boolean b) {
-		HashMap<Integer, String> result = new HashMap<Integer, String>();
+	protected static Map<Integer, String> getList(final boolean banned) {
+		final Map<Integer, String> result = new HashMap<Integer, String>();
 
 		for (int i : BanVotePlugin.results.keySet()) {
-			if ((BanVotePlugin.results.get(i).getType() == 2 && b)
-					|| (BanVotePlugin.results.get(i).getType() == 0 && !b)
-					|| customBan(BanVotePlugin.results.get(i).getType()))
+			if ((BanVotePlugin.results.get(i).getType() == 2 && banned)
+					|| (BanVotePlugin.results.get(i).getType() == 0 && !banned)
+					|| customBan(BanVotePlugin.results.get(i).getType())) {
 
 				result.put(i, BanVotePlugin.results.get(i).getResultPlayerName());
+			}
 		}
 
 		return result;
@@ -155,17 +159,17 @@ public class BanVoteResult {
 	 * @param type the command id to check
 	 * @return true if the player is to be banned, false otherwise
 	 */
-	private static boolean customBan(byte type) {
-		int i = -3+type;
+	private static boolean customBan(final byte type) {
+		int pos = -3+type;
 		
-		if (i < 0) {
+		if (pos < 0) {
 			return false;
 		}
 		
-		for (BanVoteCommand bc : BanVotePlugin.commands.values()) {
-			if (i-- < 1) {
-				return bc.doesBan();
-			}
+		BanVoteCommand bc = BanVotePlugin.instance.getBVCommand(type);
+		
+		if (bc != null) {
+			return bc.doesBan();
 		}
 		
 		return false;
@@ -178,20 +182,16 @@ public class BanVoteResult {
 	 *            the player name to check
 	 * @return true if a ban is active, false otherwise
 	 */
-	protected static boolean isBanned(String sPlayer) {
-		Player p = Bukkit.getPlayer(sPlayer);
-		if (p != null) {
-			if (p.hasPermission("banvote.admin")) {
-				return false;
-			}
+	public static boolean isBanned(final String sPlayer) {
+		final Player player = Bukkit.getPlayer(sPlayer);
+		if ((player != null) && (player.hasPermission("banvote.admin"))) {
+			return false;
 		}
-		HashMap<Integer, String> map = getList(true);
+		final Map<Integer, String> map = getList(true);
 
 		for (int i : map.keySet()) {
-			if (map.get(i).equals(sPlayer)) {
-				if (!checkRemove(i)) {
-					return true;
-				}
+			if ((map.get(i).equals(sPlayer)) && !checkRemove(i)) {
+				return true;
 			}
 		}
 		return false;
@@ -204,20 +204,16 @@ public class BanVoteResult {
 	 *            the player name to check
 	 * @return true if a mute is active, false otherwise
 	 */
-	protected static boolean isMuted(String sPlayer) {
-		Player p = Bukkit.getPlayer(sPlayer);
-		if (p != null) {
-			if (p.hasPermission("banvote.admin")) {
-				return false;
-			}
+	public static boolean isMuted(final String sPlayer) {
+		final Player player = Bukkit.getPlayer(sPlayer);
+		if ((player != null) && (player.hasPermission("banvote.admin"))) {
+			return false;
 		}
-		HashMap<Integer, String> map = getList(false);
+		final Map<Integer, String> map = getList(false);
 
 		for (int i : map.keySet()) {
-			if (map.get(i).equals(sPlayer)) {
-				if (!checkRemove(i)) {
-					return true;
-				}
+			if ((map.get(i).equals(sPlayer)) && (!checkRemove(i))) {
+				return true;
 			}
 		}
 		return false;
@@ -238,7 +234,7 @@ public class BanVoteResult {
 	 * @return true if the ban/mute has expired, false otherwise
 	 */
 	protected boolean over() {
-		BanVotePlugin.db.i(timestamp + (interval * 60) + " < "
+		BanVotePlugin.debug.info(timestamp + (interval * 60) + " < "
 				+ System.currentTimeMillis() / 1000);
 		return (timestamp + (interval * 60)) < System.currentTimeMillis() / 1000;
 	}
@@ -259,15 +255,15 @@ public class BanVoteResult {
 	 * @return a string containing voter, target, banned, interval
 	 */
 	public String getInfo() {
-		String s = "mute";
+		String action = "mute";
 		if (type == 1) {
-			s = "kick";
+			action = "kick";
 		} else if (type == 2) {
-			s = "ban";
+			action = "ban";
 		}
 
 		return ChatColor.GREEN + voter + ChatColor.GOLD + " => "
-				+ ChatColor.RED + target + ChatColor.GOLD + "; " + s + ": "
+				+ ChatColor.RED + target + ChatColor.GOLD + "; " + action + ": "
 				+ (result ? target : voter) + " (" + interval + " mins)";
 	}
 

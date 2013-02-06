@@ -10,6 +10,8 @@ settings:
     NegMinutes: 8
     CoolMinutes: 30
     CalcPublic: false
+    Stats: true
+    Update: true
 ###############
 # COMMANDS
 #
@@ -31,3 +33,4 @@ commands:
         ban: false
         kick: false
         command: jail $l $m
+        noplayer: false

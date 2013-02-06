@@ -1,7 +1,7 @@
 name: BanVote
 author: slipcor
 main: net.slipcor.banvote.BanVotePlugin
-version: 0.0.4.9
+version: 0.0.7.0
 website: http://dev.bukkit.org/server-mods/banvote
 commands:
     banvote:
@@ -11,6 +11,7 @@ commands:
             /banvote [playername] [reason] | start vote
             /banvote [+|yes|true] | vote for ban
             /banvote [-|no|false] | vote against ban
+        permission: banvote.cmd
     mutevote:
         description: vote for muting a player
         usage: |
@@ -18,6 +19,7 @@ commands:
             /mutevote [playername] [reason] | start vote
             /mutevote [+|yes|true] | vote for mute
             /mutevote [-|no|false] | vote against mute
+        permission: mutevote.cmd
     kickvote:
         description: vote for kicking a player
         usage: |
@@ -25,6 +27,7 @@ commands:
             /kickvote [playername] [reason] | start vote
             /kickvote [+|yes|true] | vote for kick
             /kickvote [-|no|false] | vote against kick
+        permission: kickvote.cmd
     customvote:
         description: vote for committing a command (on a player)
         usage: |
@@ -32,6 +35,7 @@ commands:
             /customvote [playername] [type] [reason] | start vote
             /customvote [+|yes|true] | vote for kick
             /customvote [-|no|false] | vote against kick
+        permission: customvote.cmd
     release:
         description: unban/mute a player
         usage: |
@@ -41,6 +45,21 @@ permissions:
     banvote.admin:
         description: Allows you to unban
         default: op
+    banvote.novote:
+        description: Prevents a vote on a player
+        default: op
+    banvote.cmd:
+        description: Allows you to start a ban vote
+        default: true
+    customvote.cmd:
+        description: Allows you to start a custom vote
+        default: true
+    kickvote.cmd:
+        description: Allows you to start a kick vote
+        default: true
+    mutevote.cmd:
+        description: Allows you to start a mute vote
+        default: true
     banvote.vote:
         description: Allows you to vote
         default: true
