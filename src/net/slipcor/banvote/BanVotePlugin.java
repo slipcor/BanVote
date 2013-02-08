@@ -11,6 +11,7 @@ import net.slipcor.banvote.api.IBanVotePlugin;
 import net.slipcor.banvote.util.Config;
 import net.slipcor.banvote.util.Debugger;
 import net.slipcor.banvote.util.BanVoteListener;
+import net.slipcor.banvote.util.Language;
 import net.slipcor.banvote.util.Logger;
 import net.slipcor.banvote.util.Update;
 import net.slipcor.banvote.util.Tracker;
@@ -18,7 +19,6 @@ import net.slipcor.banvote.votes.GeneralVote;
 import net.slipcor.banvote.votes.PlayerVote;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -93,7 +93,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
         tracker.start();
 		Update.updateCheck(this);
 		
-		log.info(getDescription().getVersion() + " enabled");
+		log.info(Language.LOC_ENABLED.toString(getDescription().getVersion()));
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		Tracker.stop();
 		debug.info("canceling tasks...");
 		Bukkit.getScheduler().cancelTasks(this);
-		log.info(getDescription().getVersion() + " disabled");
+		log.info(Language.LOG_DISABLED.toString(getDescription().getVersion()));
 	}
 
 	@Override
@@ -115,7 +115,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		
 		if (!(sender instanceof Player)) {
 			debug.info("onCommand: sent from console");
-			sender.sendMessage("[BanVote] Console only has access to /release");
+			msg(sender, Language.LOC_CONSOLE.toString());
 			return true;
 		}
 		
@@ -139,7 +139,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 				try {
 					action = getBVCommand(args[1]).getAction();
 				} catch (Exception e) {
-					msg(player, "§cThere is no vote running!");
+					msg(player, Language.ERROR_NOVOTERUNNING.toString());
 					return true;
 				}
 			} else {
@@ -152,7 +152,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		debug.info("onCommand: " + type + "vote command");
 
 		if (!player.hasPermission(type + "vote.vote")) {
-			msg(player, "§cYou don't have permission!");
+			msg(player, Language.ERROR_NOPERMISSION.toString());
 			return true;
 		}
 
@@ -178,20 +178,19 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 			
 			BanVoteCommand bvc = getBVCommand(action);
 			if (pTarget == null) {
-				if (!bvc.doesIgnorePlayer()) {
-					BanVotePlugin.instance.msg(player, "Player not found: " + args[0]);
+				if (bvc == null || !bvc.doesIgnorePlayer()) {
+					msg(player, Language.ERROR_PLAYERNOTFOUND.toString(args[0]));
 					return true;
 				}
 			} else {
 			
 				if (pTarget.hasPermission("banvote.novote")) {
-					BanVotePlugin.instance.msg(player, "You can not start a vote against " + args[0]);
+					msg(player, Language.ERROR_VOTEPROTECTED.toString(args[0]));
 					return true;
 				}
 				
 				if (!AVote.isPossible(pTarget)) {
-					BanVotePlugin.instance.msg(player, ChatColor.GOLD + "Vote on " + args[0]
-							+ " cooling down!");
+					BanVotePlugin.instance.msg(player,Language.INFO_VOTECOOLINGDOWN.toString(args[0]));
 					return true;
 				}
 			}
@@ -207,16 +206,12 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		}
 
 		if (args[0].equalsIgnoreCase("help")) {
-			msg(player, "§6To start a vote to " + type + " a player type: ");
-			msg(player, "§b/" + type + "vote [playername] [reason]");
-			msg(player, "§6Once started, type " + "§a/" + type
-					+ "vote [+|yes|true]" + " §6to vote to ban");
-			msg(player, "§6or §c/" + type
-					+ "vote [-|no|false] §6to vote not to " + type + ".");
-			msg(player, "§6A vote against counts as "
-					+ "§c-4 §6votes towards a " + type);
-			msg(player, "§6A non-vote counts as "
-					+ "§c-0.25 §6votes towards a " + type);
+			msg(player, Language.INFO_HELP1.toString(type));
+			msg(player, Language.INFO_HELP2.toString(type));
+			msg(player, Language.INFO_HELP3.toString(type));
+			msg(player, Language.INFO_HELP4.toString());
+			msg(player, Language.INFO_HELP5.toString());
+			msg(player, Language.INFO_HELP6.toString());
 			return true;
 		}
 
@@ -301,7 +296,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		}
 
 		if (!sender.hasPermission("banvote.admin")) {
-			msg(sender, "§cYou don't have permission!");
+			msg(sender, Language.ERROR_NOPERMISSION.toString());
 			return true;
 		}
 
@@ -311,7 +306,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 				msg(sender, "§6#" + i + ": " + ban.getInfo());
 			}
 			if (results.size() < 1) {
-				msg(sender, "§6No bans active!");
+				msg(sender, Language.INFO_NOBANS.toString());
 			}
 			return true;
 		}
@@ -322,11 +317,10 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 			banPlayer = results.get(pos).getResultPlayerName();
 			BanVoteResult.remove(pos);
 		} catch (Exception e) {
-			msg(sender, "§cInvalid argument! Not a number: "
-					+ args[0]);
+			msg(sender, Language.ERROR_NOTNUMERIC.toString(args[0]));
 			return true;
 		}
-		msg(sender, "§aUnbanned: " + banPlayer);
+		msg(sender, Language.GOOD_UNBANNED.toString(banPlayer));
 		return true;
 	}
 
