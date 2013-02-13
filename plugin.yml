@@ -1,7 +1,7 @@
 name: BanVote
 author: slipcor
 main: net.slipcor.banvote.BanVotePlugin
-version: 0.1.0.0
+version: 0.1.0.1
 website: http://dev.bukkit.org/server-mods/banvote
 commands:
     banvote:
@@ -11,7 +11,7 @@ commands:
             /banvote [playername] [reason] | start vote
             /banvote [+|yes|true] | vote for ban
             /banvote [-|no|false] | vote against ban
-        permission: banvote.cmd
+        permission: banvote.vote
     mutevote:
         description: vote for muting a player
         usage: |
@@ -19,7 +19,7 @@ commands:
             /mutevote [playername] [reason] | start vote
             /mutevote [+|yes|true] | vote for mute
             /mutevote [-|no|false] | vote against mute
-        permission: mutevote.cmd
+        permission: mutevote.vote
     kickvote:
         description: vote for kicking a player
         usage: |
@@ -27,7 +27,7 @@ commands:
             /kickvote [playername] [reason] | start vote
             /kickvote [+|yes|true] | vote for kick
             /kickvote [-|no|false] | vote against kick
-        permission: kickvote.cmd
+        permission: kickvote.vote
     customvote:
         description: vote for committing a command (on a player)
         usage: |
@@ -35,7 +35,7 @@ commands:
             /customvote [playername] [type] [reason] | start vote
             /customvote [+|yes|true] | vote for kick
             /customvote [-|no|false] | vote against kick
-        permission: customvote.cmd
+        permission: customvote.vote
     release:
         description: unban/mute a player
         usage: |

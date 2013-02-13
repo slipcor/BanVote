@@ -169,6 +169,11 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 			debug.info("args: "
 					+ instance.parseStringArray(args, action));
 
+			if (!player.hasPermission(type + "vote.cmd")) {
+				msg(player, Language.ERROR_NOPERMISSION.toString());
+				return true;
+			}
+			
 			Player pTarget = null;
 
 			try {

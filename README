@@ -1,5 +1,6 @@
 CHANGELOG
 
+v0.1.0.1 - fix the permission issue (cmd > vote)
 v0.1.0 - add language
 v0.0.7.2 - fix another NPE
 v0.0.7.1 - fix an NPE
