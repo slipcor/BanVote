@@ -6,6 +6,7 @@ import java.util.Set;
 import net.slipcor.banvote.BanVotePlugin;
 import net.slipcor.banvote.util.AdvanceRunner;
 import net.slipcor.banvote.util.Config;
+import net.slipcor.banvote.util.Language;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -96,11 +97,11 @@ public abstract class AVote {
 	public void commitNoVote(final Player player) {
 		BanVotePlugin.debug.info("player " + player.getName() + " votes NO");
 		if (!mayVote(player.getName())) {
-			BanVotePlugin.instance.msg(player, ChatColor.GOLD + "You already voted!");
+			BanVotePlugin.instance.msg(player, Language.INFO_ALREADYVOTED.toString());
 			return;
 		}
 		nope.add(player.getName());
-		BanVotePlugin.instance.msg(player, ChatColor.RED + "Vote successful!");
+		BanVotePlugin.instance.msg(player, Language.BAD_VOTED.toString());
 	}
 
 	/**
@@ -112,11 +113,11 @@ public abstract class AVote {
 	public void commitYesVote(final Player player) {
 		BanVotePlugin.debug.info("player " + player.getName() + " votes YES");
 		if (!mayVote(player.getName())) {
-			BanVotePlugin.instance.msg(player, ChatColor.GOLD + "You already voted!");
+			BanVotePlugin.instance.msg(player, Language.INFO_ALREADYVOTED.toString());
 			return;
 		}
 		yes.add(player.getName());
-		BanVotePlugin.instance.msg(player, ChatColor.GREEN + "Vote successful!");
+		BanVotePlugin.instance.msg(player, Language.GOOD_VOTED.toString());
 	}
 
 	/**
@@ -154,7 +155,7 @@ public abstract class AVote {
 				}
 				afk.add(p.getName());
 			}
-		} catch (Exception E) {
+		} catch (Exception e) {
 
 		}
 
@@ -256,7 +257,7 @@ public abstract class AVote {
 		BanVotePlugin.debug.info("vote commit! " + player.getName() + " : " + sVote);
 		final AVote banVote = getActiveVote();
 		if (banVote == null) {
-			BanVotePlugin.instance.msg(player, ChatColor.GOLD + "No vote active!");
+			BanVotePlugin.instance.msg(player, Language.INFO_NOVOTEACTIVE.toString());
 			return;
 		}
 		BanVotePlugin.debug.info("vote activity check positive");
@@ -281,16 +282,15 @@ public abstract class AVote {
 			return;
 		}
 		BanVotePlugin.debug.warn("vote value check fail");
-		BanVotePlugin.instance.msg(player, ChatColor.GOLD + "Invalid vote argument '"
-				+ sVote + "'!");
-		BanVotePlugin.instance.msg(player, ChatColor.GOLD
-				+ "Use one of the following: '" + ChatColor.GREEN + "+"
-				+ ChatColor.GOLD + "', '" + ChatColor.GREEN + "yes"
-				+ ChatColor.GOLD + "', '" + ChatColor.GREEN + "true"
-				+ ChatColor.GOLD + "', '" + ChatColor.RED + "-"
-				+ ChatColor.GOLD + "', '" + ChatColor.RED + "no"
-				+ ChatColor.GOLD + "', '" + ChatColor.RED + "false"
-				+ ChatColor.GOLD + "'!");
+		BanVotePlugin.instance.msg(player, Language.ERROR_INVALIDARGUMENT.toString(sVote));
+		BanVotePlugin.instance.msg(player, Language.INFO_ARGUMENTS.toString(
+				ChatColor.GREEN + "+"
+						+ ChatColor.GOLD + "', '" + ChatColor.GREEN + "yes"
+						+ ChatColor.GOLD + "', '" + ChatColor.GREEN + "true"
+						+ ChatColor.GOLD + "', '" + ChatColor.RED + "-"
+						+ ChatColor.GOLD + "', '" + ChatColor.RED + "no"
+						+ ChatColor.GOLD + "', '" + ChatColor.RED + "false"
+						+ ChatColor.GOLD));
 	}
 
 	/**

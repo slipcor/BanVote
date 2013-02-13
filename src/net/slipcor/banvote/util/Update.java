@@ -132,12 +132,10 @@ public final class Update {
 		if (!(player instanceof Player)) {
 			if (msg) {
 				if (outdated) {
-					instance.getServer().getLogger().warning("[BanVote] You are using v"+vThis+", an outdated version! Latest: "+vOnline);
+					BanVotePlugin.instance.getLogger().warning(Language.INFO_VERSIONOUTDATED.toString(vThis,vOnline));
 				} else {
-					instance.getServer().getLogger().warning("[BanVote] You are using v"+vThis+", an experimental version! Latest stable: "+vOnline);
+					BanVotePlugin.instance.getLogger().warning(Language.INFO_VERSIONEXPERIMENTAL.toString(vThis,vOnline));
 				}
-			} else {
-				instance.getServer().getLogger().info("[BanVote] You are on latest version!");
 			}
 		}
 		if (!msg) {
@@ -145,9 +143,9 @@ public final class Update {
 		}
 
 		if (outdated) {
-			BanVotePlugin.instance.msg(player, "You are using "+colorize("v"+vThis,'o')+", an outdated version! Latest: "+colorize("v"+vOnline,'s'));
+			BanVotePlugin.instance.msg(player, Language.INFO_VERSIONOUTDATED.toString(colorize("v"+vThis,'o'),colorize("v"+vOnline,'s')));
 		} else {
-			BanVotePlugin.instance.msg(player, "You are using "+colorize("v"+vThis,'e')+", an experimental version! Latest stable: "+colorize("v"+vOnline,'s'));
+			BanVotePlugin.instance.msg(player, Language.INFO_VERSIONEXPERIMENTAL.toString(colorize("v"+vThis,'e'),colorize("v"+vOnline,'s')));
 		}
 	}
 	

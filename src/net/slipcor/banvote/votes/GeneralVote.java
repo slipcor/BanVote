@@ -3,29 +3,24 @@ package net.slipcor.banvote.votes;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import net.slipcor.banvote.BanVotePlugin;
 import net.slipcor.banvote.api.AVote;
 import net.slipcor.banvote.util.Config;
+import net.slipcor.banvote.util.Language;
 
 public class GeneralVote extends AVote {
 	public GeneralVote(Player pTarget, Player player, String sReason,
 			byte bType) {
 		super(pTarget, player, sReason, bType);
 
-		BanVotePlugin.instance.brc(ChatColor.GREEN + player.getName() + ChatColor.GOLD
-				+ " started a " + type + " vote.");
-		BanVotePlugin.instance.brc(ChatColor.GOLD + type + " reason: " + ChatColor.WHITE
-				+ sReason);
-		BanVotePlugin.instance.brc(ChatColor.GOLD + "Say " + ChatColor.GREEN + "/"
-				+ (bType > 2 ? "custom" : type) + "vote yes" + ChatColor.GOLD
-				+ " for " + type + ", " + ChatColor.RED + "/"
-				+ (bType > 2 ? "custom" : type) + "vote no" + ChatColor.GOLD
-				+ " to vote against " + type + ".");
-		BanVotePlugin.log.info(type + " vote started: [voter: "
-				+ player.getName() + "], reason: " + sReason);
+		BanVotePlugin.instance.brc(Language.INFO_GENERAL_INIT1.toString(player.getName(),type));
+		BanVotePlugin.instance.brc(Language.INFO_GENERAL_INIT2.toString(type,sReason));
+		BanVotePlugin.instance.brc(Language.INFO_GENERAL_INIT3.toString((bType > 2 ? "custom" : type)
+				,type,(bType > 2 ? "custom" : type),type));
+		BanVotePlugin.log.info(Language.LOG_STARTED.toString(type,
+				player.getName(),sReason));
 	}
 
 	@Override
@@ -38,9 +33,8 @@ public class GeneralVote extends AVote {
 			if (half) {
 				calculateResult();
 			} else {
-				BanVotePlugin.instance.brc(ChatColor.GOLD
-						+ String.valueOf(Math.round(Config.stageSeconds / 2))
-						+ " seconds until vote is over.");
+				BanVotePlugin.instance.brc(Language.INFO_GENERALSECONDS.toString(
+						String.valueOf(Math.round(Config.stageSeconds / 2))));
 			}
 			half = !half;
 		} else {
@@ -68,43 +62,37 @@ public class GeneralVote extends AVote {
 		final float result = (Config.yesValue * yes.size()) + (Config.noValue * nope.size())
 				+ (Config.afkValue * iAfk) + (Config.nonValue * non.size());
 
-		BanVotePlugin.instance.brc(ChatColor.GOLD + "Voters for " + ChatColor.GREEN
-				+ type + ChatColor.GOLD + ": " + getNames(yes));
-		BanVotePlugin.instance.brc(ChatColor.GOLD + "Voters for " + ChatColor.RED
-				+ "no " + type + ChatColor.GOLD + ": " + getNames(nope));
+		BanVotePlugin.instance.brc(Language.INFO_RESULTYES.toString(type,getNames(yes)));
+		BanVotePlugin.instance.brc(Language.INFO_RESULTNO.toString(type,getNames(nope)));
 
 		if (Config.calcPublic) {
-
-			BanVotePlugin.instance.brc(yes.size() + " " + type + " votes = "
-					+ (yes.size() * Config.yesValue) + " :: " + getNames(yes));
-			BanVotePlugin.instance.brc(afk.size() + " afk votes = "
-					+ (afk.size() * Config.afkValue) + " :: " + getNames(afk));
-			BanVotePlugin.instance.brc(nope.size() + " anti votes = "
-					+ (nope.size() * Config.noValue) + " :: " + getNames(nope));
-			BanVotePlugin.instance.brc(non.size() + " non votes = "
-					+ (non.size() * Config.nonValue) + " :: " + getNames(non));
-			BanVotePlugin.instance.brc("------------------");
-			BanVotePlugin.instance.brc("Final vote tally = " + result);
+			BanVotePlugin.instance.brc(Language.INFO_VOTESUMMARY1.toString(
+					String.valueOf(yes.size()),type,String.valueOf(yes.size() * Config.yesValue),getNames(yes)));
+			BanVotePlugin.instance.brc(Language.INFO_VOTESUMMARY2.toString(
+					String.valueOf(afk.size()),type,String.valueOf(afk.size() * Config.afkValue),getNames(afk)));
+			BanVotePlugin.instance.brc(Language.INFO_VOTESUMMARY3.toString(
+					String.valueOf(nope.size()),type,String.valueOf(nope.size() * Config.yesValue),getNames(nope)));
+			BanVotePlugin.instance.brc(Language.INFO_VOTESUMMARY4.toString(
+					String.valueOf(non.size()),type,String.valueOf(non.size() * Config.yesValue),getNames(non)));
+			BanVotePlugin.instance.brc(Language.INFO_VOTESUMMARYLINE.toString());
+			BanVotePlugin.instance.brc(Language.INFO_VOTESUMMARYRESULT.toString(String.valueOf(result)));
 		} else {
-			BanVotePlugin.log.info(yes.size() + " " + type + " votes = "
-					+ (yes.size() * Config.yesValue) + " :: " + getNames(yes));
-			BanVotePlugin.log.info(afk.size() + " afk votes = "
-					+ (afk.size() * Config.afkValue) + " :: " + getNames(afk));
-			BanVotePlugin.log.info(nope.size() + " anti votes = "
-					+ (nope.size() * Config.noValue) + " :: " + getNames(nope));
-			BanVotePlugin.log.info(non.size() + " non votes = "
-					+ (non.size() * Config.nonValue) + " :: " + getNames(non));
-			BanVotePlugin.log.info("------------------");
-			BanVotePlugin.log.info("Final vote tally = " + result);
+			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY1.toString(
+					String.valueOf(yes.size()),type,String.valueOf(yes.size() * Config.yesValue),getNames(yes)));
+			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY2.toString(
+					String.valueOf(afk.size()),type,String.valueOf(afk.size() * Config.afkValue),getNames(afk)));
+			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY3.toString(
+					String.valueOf(nope.size()),type,String.valueOf(nope.size() * Config.yesValue),getNames(nope)));
+			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY4.toString(
+					String.valueOf(non.size()),type,String.valueOf(non.size() * Config.yesValue),getNames(non)));
+			BanVotePlugin.log.info(Language.INFO_VOTESUMMARYLINE.toString());
+			BanVotePlugin.log.info(Language.INFO_VOTESUMMARYRESULT.toString(String.valueOf(result)));
 		}
 
 		if (result > Config.validMin) {
 			// vote successful
-			BanVotePlugin.instance.brc(ChatColor.GOLD + "" + type + " vote"
-					+ " gave a clear result.");
-			BanVotePlugin.instance.brc(ChatColor.GOLD + "It " + ChatColor.GREEN
-					+ "succeeded" + ChatColor.GOLD + " with a score of "
-					+ Math.round(result) + ".");
+			BanVotePlugin.instance.brc(Language.INFO_VOTERESULTCLEAR.toString(type));
+			BanVotePlugin.instance.brc(Language.INFO_VOTERESULTYES.toString(String.valueOf(Math.round(result))));
 
 			state = voteState.POSITIVE;
 			
@@ -119,17 +107,13 @@ public class GeneralVote extends AVote {
 			
 		} else if (result < Config.validMax) {
 			// vote failed
-			BanVotePlugin.instance.brc(ChatColor.GOLD + "" + type + " vote"
-					+ " gave a clear result.");
-			BanVotePlugin.instance.brc(ChatColor.GOLD + "It " + ChatColor.RED + "failed"
-					+ ChatColor.GOLD + " with a score of " + Math.round(result)
-					+ ".");
+			BanVotePlugin.instance.brc(Language.INFO_VOTERESULTCLEAR.toString(type));
+			BanVotePlugin.instance.brc(Language.INFO_VOTERESULTNO.toString(String.valueOf(Math.round(result))));
 
 			state = voteState.NEGATIVE;
 		} else {
 			// community failed
-			BanVotePlugin.instance.brc(ChatColor.GOLD + "" + type + " vote" +
-					" did not give a clear result.");
+			BanVotePlugin.instance.brc(Language.INFO_VOTERESULTNOTCLEAR.toString(type));
 
 			state = voteState.NULL;
 		}

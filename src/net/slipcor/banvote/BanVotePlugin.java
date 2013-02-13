@@ -55,6 +55,8 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 
 		getConfig().options().copyDefaults(true);
 		saveConfig();
+		
+		Language.init(this);
 
 		Config.set(getConfig().getConfigurationSection("settings"));
 
@@ -93,7 +95,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
         tracker.start();
 		Update.updateCheck(this);
 		
-		log.info(Language.LOC_ENABLED.toString(getDescription().getVersion()));
+		log.info(Language.LOG_ENABLED.toString(getDescription().getVersion()));
 	}
 
 	@Override
@@ -115,7 +117,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		
 		if (!(sender instanceof Player)) {
 			debug.info("onCommand: sent from console");
-			msg(sender, Language.LOC_CONSOLE.toString());
+			msg(sender, Language.LOG_CONSOLE.toString());
 			return true;
 		}
 		
@@ -163,17 +165,17 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		debug.info("onCommand: args: " + parseStringArray(args,(byte)0));
 
 		if (args.length > 1) {
-			BanVotePlugin.debug.info("vote init: " + player.getName() + " => " + args[0]);
-			BanVotePlugin.debug.info("args: "
-					+ BanVotePlugin.instance.parseStringArray(args, action));
+			debug.info("vote init: " + player.getName() + " => " + args[0]);
+			debug.info("args: "
+					+ instance.parseStringArray(args, action));
 
 			Player pTarget = null;
 
 			try {
 				pTarget = Bukkit.matchPlayer(args[0]).get(0);
-				BanVotePlugin.debug.info("player found: " + pTarget.getName());
+				debug.info("player found: " + pTarget.getName());
 			} catch (Exception e) {
-				BanVotePlugin.debug.warn("player not found.");
+				debug.warn("player not found.");
 			}
 			
 			BanVoteCommand bvc = getBVCommand(action);

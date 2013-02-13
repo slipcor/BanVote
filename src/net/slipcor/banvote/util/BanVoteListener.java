@@ -5,7 +5,6 @@ import net.slipcor.banvote.api.AVote;
 import net.slipcor.banvote.BanVotePlugin;
 import net.slipcor.banvote.BanVoteResult;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -53,7 +52,7 @@ public class BanVoteListener implements Listener {
 		if ((AVote.isChatBlocked(player.getName()))
 				|| (BanVoteResult.isMuted(player.getName()))) {
 			BanVotePlugin.instance
-					.msg(player, ChatColor.GOLD + "You are muted, please wait.");
+					.msg(player, Language.ERROR_MUTED.toString());
 			return false;
 		}
 		return true;
@@ -65,7 +64,7 @@ public class BanVoteListener implements Listener {
 		if (BanVoteResult.isBanned(event.getPlayer().getName())) {
 			BanVotePlugin.debug.info("disallowing...");
 			event.disallow(PlayerLoginEvent.Result.KICK_OTHER,
-					"You are vote-banned!");
+					Language.INFO_VOTEBANNED.toString());
 		}
 	}
 	
