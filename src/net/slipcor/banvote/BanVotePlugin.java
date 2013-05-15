@@ -36,8 +36,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 	public static Debugger debug;
 	public static BanVotePlugin instance;
-
-	public static Logger log = new Logger();
 	public static Set<AVote> votes = new HashSet<AVote>();
 	protected static Map<Integer, BanVoteResult> results = new HashMap<Integer, BanVoteResult>();
 	
@@ -95,7 +93,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
         tracker.start();
 		Update.updateCheck(this);
 		
-		log.info(Language.LOG_ENABLED.toString(getDescription().getVersion()));
+		getLogger().info(Language.LOG_ENABLED.toString(getDescription().getVersion()));
 	}
 
 	@Override
@@ -105,7 +103,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		Tracker.stop();
 		debug.info("canceling tasks...");
 		Bukkit.getScheduler().cancelTasks(this);
-		log.info(Language.LOG_DISABLED.toString(getDescription().getVersion()));
+		getLogger().info(Language.LOG_DISABLED.toString(getDescription().getVersion()));
 	}
 
 	@Override

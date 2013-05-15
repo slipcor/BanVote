@@ -43,7 +43,7 @@ public class PlayerVote extends AVote {
 				(bType > 2 ? "custom" : type),type,(bType > 2 ? "custom" : type),type));
 		BanVotePlugin.instance.brc(Language.INFO_PLAYER_INIT4.toString(
 				pTarget==null?"null":pTarget.getName(),String.valueOf(Config.stageSeconds),type));
-		BanVotePlugin.log.info(Language.LOG_STARTEDTARGET.toString(
+		BanVotePlugin.instance.getLogger().info(Language.LOG_STARTEDTARGET.toString(
 				type,player.getName(),pTarget==null?"null":pTarget.getName(),sReason));
 	}
 
@@ -58,7 +58,7 @@ public class PlayerVote extends AVote {
 				BanVotePlugin.instance.brc(
 						Language.INFO_PLAYER_STATUS_MUTINGVOTER.toString(
 								voter,String.valueOf(Config.stageSeconds),target));
-				BanVotePlugin.log.info(Language.LOG_PLAYER_STATUS_MUTINGVOTER.toString(type));
+				BanVotePlugin.instance.getLogger().info(Language.LOG_PLAYER_STATUS_MUTINGVOTER.toString(type));
 			} else {
 				BanVotePlugin.instance.brc(
 						Language.INFO_PLAYER_STATUS_MUTEDTARGET_SECONDS.toString(
@@ -112,16 +112,16 @@ public class PlayerVote extends AVote {
 			BanVotePlugin.instance.brc(Language.INFO_VOTESUMMARYLINE.toString());
 			BanVotePlugin.instance.brc(Language.INFO_VOTESUMMARYRESULT.toString(String.valueOf(result)));
 		} else {
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY1.toString(
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARY1.toString(
 					String.valueOf(yes.size()),type,String.valueOf(yes.size() * Config.yesValue),getNames(yes)));
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY2.toString(
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARY2.toString(
 					String.valueOf(afk.size()),type,String.valueOf(afk.size() * Config.afkValue),getNames(afk)));
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY3.toString(
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARY3.toString(
 					String.valueOf(nope.size()),type,String.valueOf(nope.size() * Config.yesValue),getNames(nope)));
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY4.toString(
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARY4.toString(
 					String.valueOf(non.size()),type,String.valueOf(non.size() * Config.yesValue),getNames(non)));
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARYLINE.toString());
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARYRESULT.toString(String.valueOf(result)));
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARYLINE.toString());
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARYRESULT.toString(String.valueOf(result)));
 		}
 
 		if (result > Config.validMin) {
@@ -134,7 +134,7 @@ public class PlayerVote extends AVote {
 			}
 
 			state = voteState.POSITIVE;
-			BanVotePlugin.log.info(target + " tempban = " + result * Config.posMinutes);
+			BanVotePlugin.instance.getLogger().info(target + " tempban = " + result * Config.posMinutes);
 			commitBan(target, Math.round(result * Config.posMinutes));
 
 		} else if (result < Config.validMax) {
@@ -147,7 +147,7 @@ public class PlayerVote extends AVote {
 			}
 
 			state = voteState.NEGATIVE;
-			BanVotePlugin.log.info(voter + " tempban = " + result * Config.negMinutes);
+			BanVotePlugin.instance.getLogger().info(voter + " tempban = " + result * Config.negMinutes);
 			commitBan(voter, Math.round(result * Config.negMinutes));
 		} else {
 			// community failed

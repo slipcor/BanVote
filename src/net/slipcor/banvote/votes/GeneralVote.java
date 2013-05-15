@@ -19,7 +19,7 @@ public class GeneralVote extends AVote {
 		BanVotePlugin.instance.brc(Language.INFO_GENERAL_INIT2.toString(type,sReason));
 		BanVotePlugin.instance.brc(Language.INFO_GENERAL_INIT3.toString((bType > 2 ? "custom" : type)
 				,type,(bType > 2 ? "custom" : type),type));
-		BanVotePlugin.log.info(Language.LOG_STARTED.toString(type,
+		BanVotePlugin.instance.getLogger().info(Language.LOG_STARTED.toString(type,
 				player.getName(),sReason));
 	}
 
@@ -77,16 +77,16 @@ public class GeneralVote extends AVote {
 			BanVotePlugin.instance.brc(Language.INFO_VOTESUMMARYLINE.toString());
 			BanVotePlugin.instance.brc(Language.INFO_VOTESUMMARYRESULT.toString(String.valueOf(result)));
 		} else {
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY1.toString(
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARY1.toString(
 					String.valueOf(yes.size()),type,String.valueOf(yes.size() * Config.yesValue),getNames(yes)));
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY2.toString(
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARY2.toString(
 					String.valueOf(afk.size()),type,String.valueOf(afk.size() * Config.afkValue),getNames(afk)));
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY3.toString(
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARY3.toString(
 					String.valueOf(nope.size()),type,String.valueOf(nope.size() * Config.yesValue),getNames(nope)));
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARY4.toString(
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARY4.toString(
 					String.valueOf(non.size()),type,String.valueOf(non.size() * Config.yesValue),getNames(non)));
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARYLINE.toString());
-			BanVotePlugin.log.info(Language.INFO_VOTESUMMARYRESULT.toString(String.valueOf(result)));
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARYLINE.toString());
+			BanVotePlugin.instance.getLogger().info(Language.INFO_VOTESUMMARYRESULT.toString(String.valueOf(result)));
 		}
 
 		if (result > Config.validMin) {

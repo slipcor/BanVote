@@ -2,9 +2,8 @@ package net.slipcor.banvote.util;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-public class Config {
+public final class Config {
 	private Config() {
-		
 	}
 
 	public static int stageSeconds = 60;
