@@ -12,7 +12,6 @@ import net.slipcor.banvote.util.Config;
 import net.slipcor.banvote.util.Debugger;
 import net.slipcor.banvote.util.BanVoteListener;
 import net.slipcor.banvote.util.Language;
-import net.slipcor.banvote.util.Logger;
 import net.slipcor.banvote.util.Update;
 import net.slipcor.banvote.util.Tracker;
 import net.slipcor.banvote.votes.GeneralVote;
@@ -47,12 +46,10 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 	public void onEnable() {
 		instance = this;
 		debug = new Debugger(getConfig().getBoolean("debug", false));
-		debug.info("enabling...");
 		debug.info("registering events...");
 		getServer().getPluginManager().registerEvents(listen, this);
 
-		getConfig().options().copyDefaults(true);
-		saveConfig();
+		saveDefaultConfig();
 		
 		Language.init(this);
 
@@ -98,8 +95,6 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 
 	@Override
 	public void onDisable() {
-		// TODO: save ban stats/times
-		debug.info("disabling...");
 		Tracker.stop();
 		debug.info("canceling tasks...");
 		Bukkit.getScheduler().cancelTasks(this);
