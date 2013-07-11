@@ -12,6 +12,7 @@ settings:
     CalcPublic: false
     Stats: true
     Update: true
+    RequireReason: false
 ###############
 # COMMANDS
 #

@@ -411,4 +411,8 @@ public abstract class AVote {
 	}
 	
 	public abstract void advance();
+
+	public String getReason() {
+		return reason;
+	}
 }

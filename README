@@ -1,5 +1,8 @@
 CHANGELOG
 
+v0.1.1.0 - add configurable necessity for a reason
+v0.1.0.3 - minor cleanup
+v0.1.0.2 - minor coding improvements
 v0.1.0.1 - fix the permission issue (cmd > vote)
 v0.1.0 - add language
 v0.0.7.2 - fix another NPE

@@ -195,13 +195,20 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 				}
 			}
 			BanVotePlugin.debug.info("possibility check positive");
+			AVote vote = null;
 			if (bvc != null && bvc.doesIgnorePlayer()) {
-				BanVotePlugin.votes.add(new GeneralVote(pTarget, player,
-						BanVotePlugin.instance.parseStringArray(args, action), action));
+				vote = new GeneralVote(pTarget, player,
+						BanVotePlugin.instance.parseStringArray(args, action), action);
 			} else {
-				BanVotePlugin.votes.add(new PlayerVote(pTarget, player,
-						BanVotePlugin.instance.parseStringArray(args, action), action));
+				vote = new PlayerVote(pTarget, player,
+						BanVotePlugin.instance.parseStringArray(args, action), action);
 			}
+			if (Config.requireReason && (vote.getReason() == null || vote.getReason().equals(""))) {
+				msg(player, Language.ERROR_REASONREQUIRED.toString());
+					
+				return true;
+			}
+			BanVotePlugin.votes.add(vote);
 			return true;
 		}
 

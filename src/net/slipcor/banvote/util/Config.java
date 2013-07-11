@@ -17,6 +17,7 @@ public final class Config {
 	public static int negMinutes = 8;
 	public static int coolMinutes = 30;
 	public static boolean calcPublic = false;
+	public static boolean requireReason = false;
 
 	public static void set(final ConfigurationSection sec) {
 		stageSeconds = sec.getInt("StageSeconds", 60);
@@ -30,5 +31,6 @@ public final class Config {
 		negMinutes = sec.getInt("NegMinutes", 8);
 		coolMinutes = sec.getInt("CoolMinutes", 30);
 		calcPublic = sec.getBoolean("CalcPublic", false);
+		requireReason = sec.getBoolean("RequireReason", false);
 	}
 }
