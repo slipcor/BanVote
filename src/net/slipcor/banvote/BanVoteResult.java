@@ -198,6 +198,30 @@ public class BanVoteResult {
 	}
 
 	/**
+	 * check if a given player name is banned
+	 * 
+	 * @param sPlayer
+	 *            the player name to check
+	 * @return true if a ban is active, false otherwise
+	 */
+	public static int getBannedSeconds(final String sPlayer) {
+		if (!isBanned(sPlayer)) {
+			return 0;
+		}
+		final Map<Integer, String> map = getList(true);
+
+		for (int i : map.keySet()) {
+			if ((map.get(i).equals(sPlayer)) && !checkRemove(i)) {
+				BanVoteResult result = BanVotePlugin.results.get(i);
+				final int remaining = result.remainingSeconds();
+				
+				return Math.max(remaining, 0);
+			}
+		}
+		return 0;
+	}
+
+	/**
 	 * check if a given player name is muted
 	 * 
 	 * @param sPlayer
@@ -237,6 +261,17 @@ public class BanVoteResult {
 		BanVotePlugin.debug.info(timestamp + (interval * 60) + " < "
 				+ System.currentTimeMillis() / 1000);
 		return (timestamp + (interval * 60)) < System.currentTimeMillis() / 1000;
+	}
+	
+	/**
+	 * return the remaining seconds for a mute/ban
+	 * 
+	 * @return the seconds remaining
+	 */
+	protected int remainingSeconds() {
+		BanVotePlugin.debug.info(timestamp + (interval * 60) + " < "
+				+ System.currentTimeMillis() / 1000);
+		return (int) ((timestamp + (interval * 60)) - ( System.currentTimeMillis() / 1000));
 	}
 
 	/**

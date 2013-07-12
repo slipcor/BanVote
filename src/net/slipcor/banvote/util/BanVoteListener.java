@@ -64,7 +64,8 @@ public class BanVoteListener implements Listener {
 		if (BanVoteResult.isBanned(event.getPlayer().getName())) {
 			BanVotePlugin.debug.info("disallowing...");
 			event.disallow(PlayerLoginEvent.Result.KICK_OTHER,
-					Language.INFO_VOTEBANNED.toString());
+					Language.INFO_VOTEBANNEDSECONDS.toString(String.valueOf(
+							BanVoteResult.getBannedSeconds(event.getPlayer().getName()))));
 		}
 	}
 	
