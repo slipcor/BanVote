@@ -12,10 +12,12 @@ import net.slipcor.banvote.util.Config;
 import net.slipcor.banvote.util.Debugger;
 import net.slipcor.banvote.util.BanVoteListener;
 import net.slipcor.banvote.util.Language;
+import net.slipcor.banvote.util.Memory;
 import net.slipcor.banvote.util.Update;
 import net.slipcor.banvote.util.Tracker;
 import net.slipcor.banvote.votes.GeneralVote;
 import net.slipcor.banvote.votes.PlayerVote;
+import net.slipcor.banvote.votes.UnmutedPlayerVote;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -50,12 +52,24 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		getServer().getPluginManager().registerEvents(listen, this);
 
 		saveDefaultConfig();
-		
-		Language.init(this);
 
+		Language.init(this);
+		
+		parseConfigs();
+		
+		final Tracker tracker = new Tracker(this);
+        tracker.start();
+		Update.updateCheck(this);
+		
+		getLogger().info(Language.LOG_ENABLED.toString(getDescription().getVersion()));
+	}
+
+	private void parseConfigs() {
 		Config.set(getConfig().getConfigurationSection("settings"));
+		results.clear();
 
 		if (getConfig().get("bans") != null) {
+			
 			final Set<String> bans = new HashSet<String>();
 
 			for (Object val : getConfig().getConfigurationSection("bans")
@@ -85,12 +99,8 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 								(byte) ++pos));
 			}
 		}
-		
-		final Tracker tracker = new Tracker(this);
-        tracker.start();
-		Update.updateCheck(this);
-		
-		getLogger().info(Language.LOG_ENABLED.toString(getDescription().getVersion()));
+
+		Memory.init(this);
 	}
 
 	@Override
@@ -104,7 +114,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 	@Override
 	public boolean onCommand(final CommandSender sender, final Command cmd, final String sCmd,
 			final String[] args) {
-		if (sCmd.equals("release")) {
+		if (sCmd.equals("release") || (sCmd.equals("banvote") && args.length > 0 && args[0].equals("reload"))) {
 			return onAdminCommand(sender, args);
 		}
 		
@@ -199,8 +209,11 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 			if (bvc != null && bvc.doesIgnorePlayer()) {
 				vote = new GeneralVote(pTarget, player,
 						BanVotePlugin.instance.parseStringArray(args, action), action);
-			} else {
+			} else if (Config.mute) {
 				vote = new PlayerVote(pTarget, player,
+						BanVotePlugin.instance.parseStringArray(args, action), action);
+			} else {
+				vote = new UnmutedPlayerVote(pTarget, player,
 						BanVotePlugin.instance.parseStringArray(args, action), action);
 			}
 			if (Config.requireReason && (vote.getReason() == null || vote.getReason().equals(""))) {
@@ -238,7 +251,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 			return;
 		}
 		BanVotePlugin.debug.info("@all: " + message);
-		Bukkit.broadcastMessage("[§bBanVote§f] " + message);
+		Bukkit.broadcastMessage("[ï¿½bBanVoteï¿½f] " + message);
 	}
 
 	@Override
@@ -285,7 +298,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		if (sender instanceof Player) {
 			BanVotePlugin.debug.info("@" + sender.getName() + ": " + message);
 		}
-		sender.sendMessage("[§bBanVote§f] " + message);
+		sender.sendMessage("[ï¿½bBanVoteï¿½f] " + message);
 	}
 
 	/**
@@ -310,11 +323,19 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		if (args[0].equals("list")) {
 			for (int i : results.keySet()) {
 				final BanVoteResult ban = results.get(i);
-				msg(sender, "§6#" + i + ": " + ban.getInfo());
+				msg(sender, "ï¿½6#" + i + ": " + ban.getInfo());
 			}
 			if (results.size() < 1) {
 				msg(sender, Language.INFO_NOBANS.toString());
 			}
+			return true;
+		} else if (args[0].equals("reload")) {
+			// /banvote reload
+			reloadConfig();
+			parseConfigs();
+			
+			msg(sender, Language.INFO_RELOADED.toString());
+			
 			return true;
 		}
 

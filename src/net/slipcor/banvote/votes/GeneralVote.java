@@ -3,6 +3,7 @@ package net.slipcor.banvote.votes;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import net.slipcor.banvote.BanVotePlugin;
@@ -25,9 +26,6 @@ public class GeneralVote extends AVote {
 
 	@Override
 	public void advance() {
-		
-		//TODO debug what happens here, whats the state, whats half
-		// mutetarget, half = false
 		
 		if (state == voteState.MUTETARGET) {
 			if (half) {
@@ -59,7 +57,19 @@ public class GeneralVote extends AVote {
 		final Set<String> afk = getAfk();
 		final Set<String> non = getNon(afk);
 
-		final float result = (Config.yesValue * yes.size()) + (Config.noValue * nope.size())
+		int opOverride = 1;
+		
+		for (OfflinePlayer player : Bukkit.getOperators()) {
+			if (player.getName().equals(this.target)) {
+				opOverride = 0;
+			}
+		}
+		
+		if (Bukkit.getPlayer(this.target) != null) {
+			opOverride = Bukkit.getPlayer(this.target).hasPermission("banvote.admin")?0:1;
+		}
+		
+		final float result = ((float)opOverride)*(Config.yesValue * yes.size()) + (Config.noValue * nope.size())
 				+ (Config.afkValue * iAfk) + (Config.nonValue * non.size());
 
 		BanVotePlugin.instance.brc(Language.INFO_RESULTYES.toString(type,getNames(yes)));

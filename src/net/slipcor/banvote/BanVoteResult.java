@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import net.slipcor.banvote.api.BanVoteCommand;
+import net.slipcor.banvote.util.Config;
+import net.slipcor.banvote.util.Memory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -55,13 +57,12 @@ public class BanVoteResult {
 		voter = sVoter;
 		target = sTarget;
 		timestamp = lTimestamp;
-		interval = iInterval;
+		interval = iInterval + (int) (Config.repeatPunishmentFactor * Memory.increaseCount(bResult?sTarget:sVoter));
 		result = bResult;
 		type = bType;
 		BanVotePlugin.instance.getConfig().set("bans.b" + uid, getContents());
 		BanVotePlugin.instance.saveConfig();
 	}
-	
 
 	/**
 	 * add a string to the bans/mutes

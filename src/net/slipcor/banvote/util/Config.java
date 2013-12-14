@@ -18,6 +18,8 @@ public final class Config {
 	public static int coolMinutes = 30;
 	public static boolean calcPublic = false;
 	public static boolean requireReason = false;
+	public static float repeatPunishmentFactor = 1.1f;
+	public static boolean mute = true;
 
 	public static void set(final ConfigurationSection sec) {
 		stageSeconds = sec.getInt("StageSeconds", 60);
@@ -32,5 +34,7 @@ public final class Config {
 		coolMinutes = sec.getInt("CoolMinutes", 30);
 		calcPublic = sec.getBoolean("CalcPublic", false);
 		requireReason = sec.getBoolean("RequireReason", false);
+		mute = sec.getBoolean("Mute", true);
+		repeatPunishmentFactor = (float)sec.getDouble("RepeatPunishmentFactor", 1.1d);
 	}
 }

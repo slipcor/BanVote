@@ -14,13 +14,11 @@ import org.bukkit.entity.Player;
 /**
  * ban vote class
  * 
- * @version v0.0.6
- * 
  * @author slipcor
  * 
  */
 
-public class PlayerVote extends AVote {
+public class UnmutedPlayerVote extends AVote {
 
 	/**
 	 * Creates a vote class instance, announces the vote and starts its timer
@@ -32,7 +30,7 @@ public class PlayerVote extends AVote {
 	 * @param sReason
 	 *            the reason given for banning
 	 */
-	public PlayerVote(final Player pTarget, final Player player, final String sReason, final byte bType) {
+	public UnmutedPlayerVote(final Player pTarget, final Player player, final String sReason, final byte bType) {
 		super(pTarget, player, sReason, bType);
 
 		BanVotePlugin.instance.brc(Language.INFO_PLAYER_INIT1.toString(
@@ -41,8 +39,7 @@ public class PlayerVote extends AVote {
 				type,sReason));
 		BanVotePlugin.instance.brc(Language.INFO_PLAYER_INIT3.toString(
 				(bType > 2 ? "custom" : type),type,(bType > 2 ? "custom" : type),type));
-		BanVotePlugin.instance.brc(Language.INFO_PLAYER_INIT4.toString(
-				pTarget==null?"null":pTarget.getName(),String.valueOf(Config.stageSeconds),type));
+		
 		BanVotePlugin.instance.getLogger().info(Language.LOG_STARTEDTARGET.toString(
 				type,player.getName(),pTarget==null?"null":pTarget.getName(),sReason));
 	}
@@ -54,31 +51,17 @@ public class PlayerVote extends AVote {
 	public void advance() {
 		if (state == voteState.MUTETARGET) {
 			if (half) {
-				state = voteState.MUTEVOTER;
-				BanVotePlugin.instance.brc(
-						Language.INFO_PLAYER_STATUS_MUTINGVOTER.toString(
-								voter,String.valueOf(Config.stageSeconds),target));
-				BanVotePlugin.instance.getLogger().info(Language.LOG_PLAYER_STATUS_MUTINGVOTER.toString(type));
-			} else {
-				BanVotePlugin.instance.brc(
-						Language.INFO_PLAYER_STATUS_MUTEDTARGET_SECONDS.toString(
-								String.valueOf(Math.round(Config.stageSeconds / 2)),target));
-			}
-			half = !half;
-		} else if (state == voteState.MUTEVOTER) {
-			if (half) {
 				calculateResult();
 			} else {
-				BanVotePlugin.instance.brc(
-						Language.INFO_PLAYER_STATUS_MUTEDVOTER_SECONDS.toString(
-								String.valueOf(Math.round(Config.stageSeconds / 2)),voter));
+				BanVotePlugin.instance.brc(Language.INFO_GENERALSECONDS.toString(
+						String.valueOf(Math.round(Config.stageSeconds / 2))));
 			}
 			half = !half;
 		} else {
 			// cooldown finished, remove!
 			runner.cancel();
 			runner = null;
-			PlayerVote.remove(this);
+			UnmutedPlayerVote.remove(this);
 		}
 	}
 

@@ -36,7 +36,7 @@ public enum Language {
 	INFO_HELP4("info.help4","&6or &c/%1%vote [-|no|false]"
 			+ " &6to vote negative."),
 	INFO_HELP5("info.help5","&6A vote against counts as &c-4 &6votes"),
-	INFO_HELP6("info.help6","&6A non-vote counts as §c-0.25 §6votes"),
+	INFO_HELP6("info.help6","&6A non-vote counts as ï¿½c-0.25 ï¿½6votes"),
 
 	INFO_GENERAL_INIT1("info.generalinit1","&a%1%&6 started a %2% vote."),
 	INFO_GENERAL_INIT2("info.generalinit2","&6%1% reason: &r%2%"),
@@ -60,6 +60,8 @@ public enum Language {
 			"&6Muting &a%1%&6 for %2% seconds, so &c%3%&6 can explain."),
 	INFO_PLAYER_STATUS_MUTEDVOTER_SECONDS("info.playermutedvoter", "&6%1% seconds until &a%2%&6 is unmuted."),
 	INFO_PLAYER_STATUS_MUTEDTARGET_SECONDS("info.playermutedtarget", "&6%1% seconds until &c%2%&6 is unmuted."),
+	
+	INFO_RELOADED("info.reloaded", "&areloaded!"),
 	
 	INFO_VERSIONEXPERIMENTAL("info.versionexperimental", "You are using %1%, an experimental version! Latest stable: %2%"),
 	INFO_VERSIONOUTDATED("info.versionoutdated", "You are using %1%, an outdated version! Latest: %2%"),

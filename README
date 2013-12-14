@@ -1,5 +1,8 @@
 CHANGELOG
 
+v0.1.3 - add config setting for muting
+v0.1.2.0 - add more punishment for frequent bans
+v0.1.1.2 - add /banvote reload
 v0.1.1.1 - properly display remaining seconds
 v0.1.1.0 - add configurable necessity for a reason
 v0.1.0.3 - minor cleanup
