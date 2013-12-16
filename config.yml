@@ -15,6 +15,7 @@ settings:
     RequireReason: false
     RepeatPunishmentFactor: 1.1
     Mute: true
+    DBO_Update: both
 ###############
 # COMMANDS
 #

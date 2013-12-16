@@ -2,6 +2,7 @@ package net.slipcor.banvote.util;
 
 
 import net.slipcor.banvote.api.AVote;
+import net.slipcor.banvote.util.Updater.UpdateResult;
 import net.slipcor.banvote.BanVotePlugin;
 import net.slipcor.banvote.BanVoteResult;
 
@@ -72,7 +73,15 @@ public class BanVoteListener implements Listener {
 	@EventHandler
 	public void playerJoin(final PlayerJoinEvent event) {
 		if (event.getPlayer().isOp()) {
-			Update.message(event.getPlayer());
+			if (BanVotePlugin.instance.getUpdater() != null) {
+				UpdateResult test = BanVotePlugin.instance.getUpdater().getResult();
+				Updater updater = BanVotePlugin.instance.getUpdater();
+				if (test == UpdateResult.UPDATE_AVAILABLE) {
+					BanVotePlugin.instance.msg(event.getPlayer(), "There is an update available, please update!");
+				} else if (test == UpdateResult.SUCCESS) {
+					BanVotePlugin.instance.msg(event.getPlayer(), "The plugin has been updated, please restart the server!");
+				}
+			}
 		}
 	}
 }

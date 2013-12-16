@@ -1,5 +1,11 @@
 package net.slipcor.banvote;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -13,7 +19,7 @@ import net.slipcor.banvote.util.Debugger;
 import net.slipcor.banvote.util.BanVoteListener;
 import net.slipcor.banvote.util.Language;
 import net.slipcor.banvote.util.Memory;
-import net.slipcor.banvote.util.Update;
+import net.slipcor.banvote.util.Updater;
 import net.slipcor.banvote.util.Tracker;
 import net.slipcor.banvote.votes.GeneralVote;
 import net.slipcor.banvote.votes.PlayerVote;
@@ -41,6 +47,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 	protected static Map<Integer, BanVoteResult> results = new HashMap<Integer, BanVoteResult>();
 	
 	protected final BanVoteListener listen = new BanVoteListener();
+	private Updater updater;
 	
 	private static Map<String, BanVoteCommand> commands = new HashMap<String, BanVoteCommand>();
 
@@ -59,7 +66,29 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		
 		final Tracker tracker = new Tracker(this);
         tracker.start();
-		Update.updateCheck(this);
+        final String update = getConfig().getString("settings.DBO_Update").toLowerCase();
+
+		final Updater.UpdateType updateType;
+		final boolean announce;
+
+		if (update.contains("ann")) {
+			updateType = Updater.UpdateType.NO_DOWNLOAD;
+			announce = true;
+		} else if (update.contains("down") || update.contains("load")) {
+			updateType = Updater.UpdateType.DEFAULT;
+			announce = false;
+		} else if (update.equals("both")) {
+			updateType = Updater.UpdateType.DEFAULT;
+			announce = true;
+		} else {
+			updateType = null;
+			announce = false;
+		}
+
+		if (updateType != null) {
+			updater = new Updater(this, 35050, this.getFile(), updateType,
+					announce);
+		}
 		
 		getLogger().info(Language.LOG_ENABLED.toString(getDescription().getVersion()));
 	}
@@ -280,6 +309,10 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 			}
 		}
 		return null;
+	}
+	
+	public Updater getUpdater() {
+		return updater;
 	}
 
 	/**

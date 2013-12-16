@@ -1,26 +1,27 @@
 CHANGELOG
 
-v0.1.3 - add config setting for muting
-v0.1.2.0 - add more punishment for frequent bans
-v0.1.1.2 - add /banvote reload
-v0.1.1.1 - properly display remaining seconds
-v0.1.1.0 - add configurable necessity for a reason
-v0.1.0.3 - minor cleanup
-v0.1.0.2 - minor coding improvements
-v0.1.0.1 - fix the permission issue (cmd > vote)
-v0.1.0 - add language
-v0.0.7.2 - fix another NPE
-v0.0.7.1 - fix an NPE
-v0.0.7 - fix the customvote, add player-less votes
-v0.0.6 - add more permissions (cmds + novote)
-v0.0.5 - update for 1.3.1
-v0.0.4.9 - fix several issues
-v0.0.4.8 - fix NPE due to /mutevote
-v0.0.4 - +customvote
-v0.0.3 - +kick ; +mute
-v0.0.2 - config options, unbanning
-v0.0.1 - independant ban manager
-v0.0.0 - basic functionality
+* v0.1.3.1 - add bukkit compliant updater
+* v0.1.3 - add config setting for muting
+* v0.1.2.0 - add more punishment for frequent bans
+* v0.1.1.2 - add /banvote reload
+* v0.1.1.1 - properly display remaining seconds
+* v0.1.1.0 - add configurable necessity for a reason
+* v0.1.0.3 - minor cleanup
+* v0.1.0.2 - minor coding improvements
+* v0.1.0.1 - fix the permission issue (cmd > vote)
+* v0.1.0 - add language
+* v0.0.7.2 - fix another NPE
+* v0.0.7.1 - fix an NPE
+* v0.0.7 - fix the customvote, add player-less votes
+* v0.0.6 - add more permissions (cmds + novote)
+* v0.0.5 - update for 1.3.1
+* v0.0.4.9 - fix several issues
+* v0.0.4.8 - fix NPE due to /mutevote
+* v0.0.4 - +customvote
+* v0.0.3 - +kick ; +mute
+* v0.0.2 - config options, unbanning
+* v0.0.1 - independant ban manager
+* v0.0.0 - basic functionality
 
 TODO
 
