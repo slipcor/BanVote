@@ -26,6 +26,7 @@ import net.slipcor.banvote.votes.PlayerVote;
 import net.slipcor.banvote.votes.UnmutedPlayerVote;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -280,7 +281,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 			return;
 		}
 		BanVotePlugin.debug.info("@all: " + message);
-		Bukkit.broadcastMessage("[�bBanVote�f] " + message);
+		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "[&bBanVote&f] ") + message);
 	}
 
 	@Override
@@ -331,7 +332,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		if (sender instanceof Player) {
 			BanVotePlugin.debug.info("@" + sender.getName() + ": " + message);
 		}
-		sender.sendMessage("[�bBanVote�f] " + message);
+		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "[&bBanVote&f] ") + message);
 	}
 
 	/**

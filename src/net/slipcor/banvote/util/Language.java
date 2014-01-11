@@ -36,7 +36,7 @@ public enum Language {
 	INFO_HELP4("info.help4","&6or &c/%1%vote [-|no|false]"
 			+ " &6to vote negative."),
 	INFO_HELP5("info.help5","&6A vote against counts as &c-4 &6votes"),
-	INFO_HELP6("info.help6","&6A non-vote counts as �c-0.25 �6votes"),
+	INFO_HELP6("info.help6","&6A non-vote counts as &c-0.25 &6votes"),
 
 	INFO_GENERAL_INIT1("info.generalinit1","&a%1%&6 started a %2% vote."),
 	INFO_GENERAL_INIT2("info.generalinit2","&6%1% reason: &r%2%"),
