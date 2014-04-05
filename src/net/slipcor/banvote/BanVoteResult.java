@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import net.slipcor.banvote.api.BanVoteCommand;
 import net.slipcor.banvote.util.Config;
@@ -54,8 +55,23 @@ public class BanVoteResult {
 	 */
 	public BanVoteResult(final int uid, final String sVoter, final String sTarget, final long lTimestamp,
 			final int iInterval, final boolean bResult, final byte bType) {
-		voter = sVoter;
-		target = sTarget;
+		
+		String voteString = sVoter;
+		
+		if (voteString.contains("-")) {
+			voter = Bukkit.getServer().getPlayer(UUID.fromString(voteString)).getName();
+		} else {
+			voter = sVoter;
+		}
+		
+		String targetString = sTarget;
+		
+		if (targetString.contains("-")) {
+			target = Bukkit.getServer().getPlayer(UUID.fromString(targetString)).getName();
+		} else {
+			target = sTarget;
+		}
+		
 		timestamp = lTimestamp;
 		interval = iInterval + (int) (Config.repeatPunishmentFactor * Memory.increaseCount(bResult?sTarget:sVoter));
 		result = bResult;
@@ -281,7 +297,9 @@ public class BanVoteResult {
 	 * @return a string of all information, joined with ":"
 	 */
 	private String getContents() {
-		return voter + ":" + target + ":" + timestamp + ":" + interval + ":"
+		return Bukkit.getOfflinePlayer(voter).getUniqueId().toString() + ":" 
+				+ Bukkit.getOfflinePlayer(target).getUniqueId().toString() + ":"
+				+ timestamp + ":" + interval + ":"
 				+ result + ":" + type;
 	}
 
