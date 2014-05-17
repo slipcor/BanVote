@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public enum Language {
 
 	ERROR_INVALIDARGUMENT("error.invalidargument", "&cInvalid vote argument '%1%'!"),
+	ERROR_JOINEXEMPT("error.joinexempt", "&cYou can not vote, you did not even see the vote message!"),
 	ERROR_MUTED("error.muted", "&cYou are muted, please wait!"),
 	ERROR_NOPERMISSION("error.nopermission", "&cYou don't have permission!"),
 	ERROR_NOTNUMERIC("error.notnumeric", "&cInvalid argument! Not numeric: %1%"),

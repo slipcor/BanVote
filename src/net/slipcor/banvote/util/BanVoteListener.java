@@ -1,6 +1,9 @@
 package net.slipcor.banvote.util;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.slipcor.banvote.api.AVote;
 import net.slipcor.banvote.util.Updater.UpdateResult;
 import net.slipcor.banvote.BanVotePlugin;
@@ -13,6 +16,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
  * ban vote player listener class
@@ -24,6 +28,9 @@ import org.bukkit.event.player.PlayerLoginEvent;
  */
 
 public class BanVoteListener implements Listener {
+
+	private final List<String> exemptExempt = new ArrayList<String>();
+	public final List<String> exempt = new ArrayList<String>();
 
 	@EventHandler
 	public void playerCommand(final PlayerCommandPreprocessEvent event) {
@@ -81,6 +88,18 @@ public class BanVoteListener implements Listener {
 					BanVotePlugin.instance.msg(event.getPlayer(), "The plugin has been updated, please restart the server!");
 				}
 			}
+		} else if (BanVotePlugin.votes.size() > 0 && Config.joincheck) {
+			if (exemptExempt.contains(event.getPlayer().getName())) {
+				exemptExempt.remove(event.getPlayer().getName());
+			} else {
+				exemptExempt.add(event.getPlayer().getName());
+			}
+		}
+	}
+	@EventHandler
+	public void playerQuit(final PlayerQuitEvent event) {
+		if (BanVotePlugin.votes.size() > 0 && Config.joincheck) {
+			exemptExempt.add(event.getPlayer().getName());
 		}
 	}
 }

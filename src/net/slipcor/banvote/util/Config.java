@@ -20,6 +20,7 @@ public final class Config {
 	public static boolean requireReason = false;
 	public static float repeatPunishmentFactor = 1.1f;
 	public static boolean mute = true;
+	public static boolean joincheck = false;
 
 	public static void set(final ConfigurationSection sec) {
 		stageSeconds = sec.getInt("StageSeconds", 60);
@@ -36,5 +37,6 @@ public final class Config {
 		requireReason = sec.getBoolean("RequireReason", false);
 		mute = sec.getBoolean("Mute", true);
 		repeatPunishmentFactor = (float)sec.getDouble("RepeatPunishmentFactor", 1.1d);
+		joincheck = sec.getBoolean("JoinCheck", false);
 	}
 }

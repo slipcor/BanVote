@@ -258,6 +258,11 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 			msg(player, Language.INFO_HELP6.toString());
 			return true;
 		}
+		
+		if (Config.joincheck && listen.exempt.contains(player.getName())) {
+			msg(player, Language.ERROR_JOINEXEMPT.toString());
+			return true;
+		}
 
 		AVote.commit(args[0], player);
 		return true;
