@@ -17,6 +17,8 @@ settings:
     Mute: true
     DBO_Update: both
     JoinCheck: false
+    VoteCoolDownMinutes: 30
+    prefix: '&bBanVote&f'
 ###############
 # COMMANDS
 #

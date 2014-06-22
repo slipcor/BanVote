@@ -21,6 +21,8 @@ public final class Config {
 	public static float repeatPunishmentFactor = 1.1f;
 	public static boolean mute = true;
 	public static boolean joincheck = false;
+    public static int voteCoolDownMinutes = 30;
+    public static String prefix = "&bBanVote&f";
 
 	public static void set(final ConfigurationSection sec) {
 		stageSeconds = sec.getInt("StageSeconds", 60);
@@ -38,5 +40,7 @@ public final class Config {
 		mute = sec.getBoolean("Mute", true);
 		repeatPunishmentFactor = (float)sec.getDouble("RepeatPunishmentFactor", 1.1d);
 		joincheck = sec.getBoolean("JoinCheck", false);
+        voteCoolDownMinutes = sec.getInt("VoteCoolDownMinutes", 30);
+        prefix = sec.getString("prefix", "&bBanVote&f");
 	}
 }

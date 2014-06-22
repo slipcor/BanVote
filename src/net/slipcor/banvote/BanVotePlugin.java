@@ -45,6 +45,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 	private Updater updater;
 	
 	private static Map<String, BanVoteCommand> commands = new HashMap<String, BanVoteCommand>();
+    private final Map<String, Long> times = new HashMap<String, Long>();
 
 	@Override
 	public void onEnable() {
@@ -200,7 +201,16 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 				msg(player, Language.ERROR_NOPERMISSION.toString());
 				return true;
 			}
-			
+
+            if (times.containsKey(sender.getName())) {
+                long now = System.currentTimeMillis();
+                long then = times.get(sender.getName()) + Config.voteCoolDownMinutes;
+                if (then > now) {
+                    msg(player, Language.ERROR_VOTECOOLDOWN.toString(String.valueOf(then-now)));
+                    return true;
+                }
+            }
+
 			Player pTarget = null;
 
 			try {
@@ -280,7 +290,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 			return;
 		}
 		BanVotePlugin.debug.info("@all: " + message);
-		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "[&bBanVote&f] ") + message);
+		Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "[" + Config.prefix + "] ") + message);
 	}
 
 	@Override
@@ -331,7 +341,7 @@ public class BanVotePlugin extends JavaPlugin implements IBanVotePlugin {
 		if (sender instanceof Player) {
 			BanVotePlugin.debug.info("@" + sender.getName() + ": " + message);
 		}
-		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "[&bBanVote&f] ") + message);
+		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "["+Config.prefix+"] ") + message);
 	}
 
 	/**

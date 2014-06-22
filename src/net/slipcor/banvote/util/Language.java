@@ -17,7 +17,8 @@ public enum Language {
 	ERROR_NOVOTERUNNING("error.novoterunning", "&cThere is no vote running!"),
 	ERROR_PLAYERNOTFOUND("error.playernotfound", "&cPlayer not found: &r%1%"),
 	ERROR_REASONREQUIRED("error.reasonrequired", "&cYou need to specify a reason!"),
-	ERROR_VOTEPROTECTED("error.voteprotected", "&cYou can not vote against &6%1%&c!"),
+    ERROR_VOTEPROTECTED("error.voteprotected", "&cYou can not vote against &6%1%&c!"),
+    ERROR_VOTECOOLDOWN("error.votecooldown", "&cYou can not vote, please wait &6%1%&c seconds!"),
 
 	BAD_VOTED("bad.voted", "&cVote successful!"),
 	
