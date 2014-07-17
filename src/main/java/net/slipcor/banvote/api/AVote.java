@@ -1,6 +1,5 @@
 package net.slipcor.banvote.api;
 
-import de.stonedCRAFT.SimpleAFK.SimpleAFK;
 import net.slipcor.banvote.BanVotePlugin;
 import net.slipcor.banvote.util.AdvanceRunner;
 import net.slipcor.banvote.util.Config;
@@ -129,12 +128,12 @@ public abstract class AVote {
      */
     public Set<String> getAfk() {
         final Set<String> afk = new HashSet<String>();
+    /*
 
         try {
             if (BanVotePlugin.instance.getServer().getPluginManager()
                     .getPlugin("SimpleAFK") == null) {
                 return afk;
-            }
 
             final SimpleAFK plugin = (SimpleAFK) BanVotePlugin.instance.getServer()
                     .getPluginManager().getPlugin("SimpleAFK");
@@ -151,7 +150,7 @@ public abstract class AVote {
         } catch (Exception e) {
 
         }
-
+*/
         return afk;
     }
 
