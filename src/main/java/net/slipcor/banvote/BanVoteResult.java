@@ -44,13 +44,37 @@ public class BanVoteResult {
                          final int iInterval, final boolean bResult, final byte bType) {
 
         if (sVoter.contains("-")) {
-            voter = Bukkit.getServer().getPlayer(UUID.fromString(sVoter)).getName();
+            final UUID uuid = UUID.fromString(sVoter);
+            if (uuid != null) {
+                final Player player = Bukkit.getServer().getPlayer(uuid);
+                if (player != null) {
+                    voter = player.getName();
+                } else {
+                    voter = "undefined";
+                    BanVotePlugin.instance.getLogger().warning("Player not found for UUID " + sVoter);
+                }
+            } else {
+                voter = "undefined";
+                BanVotePlugin.instance.getLogger().warning("No valid UUID " + sVoter);
+            }
         } else {
             voter = sVoter;
         }
 
         if (sTarget.contains("-")) {
-            target = Bukkit.getServer().getPlayer(UUID.fromString(sTarget)).getName();
+            final UUID uuid = UUID.fromString(sTarget);
+            if (uuid != null) {
+                final Player player = Bukkit.getServer().getPlayer(uuid);
+                if (player != null) {
+                    target = player.getName();
+                } else {
+                    target = "undefined";
+                    BanVotePlugin.instance.getLogger().warning("Player not found for UUID " + sTarget);
+                }
+            } else {
+                target = "undefined";
+                BanVotePlugin.instance.getLogger().warning("No valid UUID " + sTarget);
+            }
         } else {
             target = sTarget;
         }

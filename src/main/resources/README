@@ -1,5 +1,7 @@
 CHANGELOG
 
+* v0.1.7 - add UUID warnings instead of messup errors
+* v0.1.6 - mavenize all the things!
 * v0.1.5 - add VoteCoolDownMinutes and prefix
 * v0.1.4.1 - add JoinCheck to only voting for people on the server while starting the vote
 * v0.1.4 - update storage to UUIDs instead of player names
