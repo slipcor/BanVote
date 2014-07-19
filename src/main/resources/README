@@ -1,5 +1,6 @@
 CHANGELOG
 
+* v0.2.0.8 - add proper UUID check, needs an UUID ready server implementation!
 * v0.1.7 - add UUID warnings instead of messup errors
 * v0.1.6 - mavenize all the things!
 * v0.1.5 - add VoteCoolDownMinutes and prefix

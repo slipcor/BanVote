@@ -6,6 +6,7 @@ import net.slipcor.banvote.util.Config;
 import net.slipcor.banvote.util.Memory;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -46,7 +47,7 @@ public class BanVoteResult {
         if (sVoter.contains("-")) {
             final UUID uuid = UUID.fromString(sVoter);
             if (uuid != null) {
-                final Player player = Bukkit.getServer().getPlayer(uuid);
+                final OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(uuid);
                 if (player != null) {
                     voter = player.getName();
                 } else {
@@ -64,7 +65,7 @@ public class BanVoteResult {
         if (sTarget.contains("-")) {
             final UUID uuid = UUID.fromString(sTarget);
             if (uuid != null) {
-                final Player player = Bukkit.getServer().getPlayer(uuid);
+                final OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(uuid);
                 if (player != null) {
                     target = player.getName();
                 } else {
